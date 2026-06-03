@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financeiro - Grupo Delta</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%); color: #1a1a1a; }
+        .header { background: linear-gradient(135deg, #1B5BA4 0%, #2B75B8 100%); color: white; padding: 20px; box-shadow: 0 4px 12px rgba(27,91,164,0.2); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .logo-section { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 28px; color: white; border: 2px solid rgba(255,255,255,0.3); }
+        .logo-text h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: 1px; color: white; }
+        .logo-text p { font-size: 12px; opacity: 0.95; margin: 0; font-weight: 500; }
+        .header-subtitle { opacity: 0.95; font-size: 13px; font-weight: 500; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 12px; }
+        h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; color: #1B5BA4; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .filter-item label { display: block; font-size: 12px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        select { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; background: white; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+        select:hover { border-color: #1B5BA4; box-shadow: 0 0 0 3px rgba(27,91,164,0.08); }
+        select:focus { outline: none; border-color: #1B5BA4; box-shadow: 0 0 0 3px rgba(27,91,164,0.15); }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .summary-card { background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s; }
+        .summary-card:hover { box-shadow: 0 4px 12px rgba(27,91,164,0.1); transform: translateY(-2px); border-color: #1B5BA4; }
+        .summary-label { font-size: 11px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .summary-value { font-size: 22px; font-weight: 700; color: #1a1a1a; }
+        .days-container { display: flex; flex-direction: column; gap: 16px; }
+        .day-card { background: white; border: 2px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s; }
+        .day-card:hover { box-shadow: 0 4px 12px rgba(27,91,164,0.1); }
+        .day-header { background: linear-gradient(135deg, #f0f5fb 0%, #e8f1f9 100%); padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-bottom: 3px solid #1B5BA4; flex-wrap: wrap; gap: 12px; transition: all 0.2s; }
+        .day-header:hover { background: linear-gradient(135deg, #e8f1f9 0%, #e0ecf7 100%); }
+        .day-header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .day-title { font-weight: 700; font-size: 16px; color: #1B5BA4; }
+        .day-date { font-size: 11px; color: #666; margin-top: 2px; }
+        .day-totals { display: flex; gap: 8px; flex-wrap: wrap; }
+        .badge { background: white; border: 2px solid #e0e0e0; border-radius: 6px; padding: 8px 12px; font-size: 9px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 80px; transition: all 0.2s; }
+        .badge:hover { border-color: #1B5BA4; background: rgba(27,91,164,0.02); }
+        .badge-label { font-size: 8px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-value { font-size: 12px; font-weight: 700; }
+        .empreendimento-header { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 12px; font-size: 13px; font-weight: 600; color: #1a1a1a; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-left: 4px solid #1B5BA4; transition: all 0.2s; }
+        .empreendimento-header:hover { background: linear-gradient(135deg, #f3f4f6 0%, #ebebf0 100%); }
+        .empreendimento-name { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .arrow { display: inline-block; width: 16px; text-align: center; color: #1B5BA4; font-weight: bold; }
+        .empreendimento-totals { display: flex; gap: 8px; font-size: 10px; flex-wrap: wrap; }
+        .empreendimento-total { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 65px; }
+        .total-label { font-size: 7px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+        .total-value { font-weight: 700; font-size: 11px; }
+        .comparison-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+        .col { flex: 1; border-right: 1px solid #e0e0e0; padding: 12px 8px; font-size: 12px; }
+        .col:last-child { border-right: none; background: #f8f9fa; }
+        .col-title { font-size: 11px; font-weight: 700; border-bottom: 2px solid; padding-bottom: 8px; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .item { padding: 6px 6px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; transition: all 0.15s; border-radius: 4px; }
+        .item:hover { background: rgba(27,91,164,0.05); }
+        .item-name { display: flex; align-items: center; gap: 4px; flex: 1; }
+        .item-value { font-weight: 600; font-size: 11px; min-width: 70px; text-align: right; }
+        .nested { display: none; margin-left: 10px; padding-left: 6px; border-left: 2px solid #d1d1d1; }
+        .nested.active { display: block; }
+        .list { display: none; margin-left: 6px; padding-left: 4px; border-left: 2px solid #e5e5e5; font-size: 10px; }
+        .list.active { display: block; }
+        .list-item { padding: 3px 3px; display: flex; justify-content: space-between; font-size: 9px; margin-bottom: 2px; }
+        .code { font-family: 'Monaco', 'Courier New', monospace; font-weight: 600; color: #1B5BA4; min-width: 60px; font-size: 9px; }
+        .name { flex: 1; text-align: center; color: #666; font-size: 9px; }
+        .value { font-weight: 600; text-align: right; min-width: 60px; font-size: 9px; }
+        .weeks-container { margin-bottom: 24px; }
+        .weeks-label { font-size: 12px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .weeks-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+        .week-button { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #1a1a1a; transition: all 0.2s; }
+        .week-button:hover { border-color: #1B5BA4; box-shadow: 0 0 0 3px rgba(27,91,164,0.08); }
+        .week-button.active { background: #1B5BA4; color: white; border-color: #1B5BA4; }
+        @media (max-width: 768px) {
+            .comparison-row { grid-template-columns: 1fr; }
+            .col { border-right: none; border-bottom: 1px solid #e0e0e0; }
+            .header-content { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .header-subtitle { font-size: 11px; }
+            .day-header { flex-wrap: wrap; gap: 8px; padding: 12px; }
+            .day-totals { flex-wrap: wrap; gap: 4px; }
+            .badge { min-width: 70px; padding: 6px 8px; font-size: 8px; }
+            .badge-value { font-size: 11px; }
+            .empreendimento-header { padding: 8px; font-size: 12px; }
+            .empreendimento-totals { gap: 4px; font-size: 9px; }
+            .empreendimento-total { min-width: 55px; }
+            .total-label { font-size: 6px; }
+            .total-value { font-size: 10px; }
+            .code { min-width: 45px; font-size: 7px; }
+            .name { font-size: 7px; }
+            .value { min-width: 45px; font-size: 7px; }
+        }
+
+        @media (max-width: 480px) {
+            .filters-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .summary-value { font-size: 18px; }
+            .logo-text h1 { font-size: 16px; }
+            .logo-text p { font-size: 11px; }
+            h1 { font-size: 18px; margin-bottom: 12px; }
+            .day-title { font-size: 14px; }
+            .day-header-left { gap: 6px; }
+            .empreendimento-name { font-size: 12px; }
+            .code { min-width: 40px; font-size: 6px; }
+            .name { font-size: 6px; }
+            .value { min-width: 40px; font-size: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-text">
+                    <h1>GRUPO DELTA</h1>
+                    <p>Acompanhamento Financeiro</p>
+                </div>
+            </div>
+            <div class="header-subtitle">💰 Dashboard de Fluxo de Caixa</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="root"></div>
+    </div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script>
+        const DATA = {"pagar": [{"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 3800.0, "Observações": "A Pagar", "Código Apropriação": "2.01.03.03", "Nome Apropriação": "Locação de Equipamento", "Conjunto": "OBRAS", "Definição": "TERCEIRIZADOS"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 729.73, "Observações": "A Pagar", "Código Apropriação": "2.01.04.15", "Nome Apropriação": "Limpeza", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 1396.68, "Observações": "A Pagar", "Código Apropriação": "2.01.04.37", "Nome Apropriação": "Carpintaria e Marcenaria", "Conjunto": "OBRAS", "Definição": "COBERTA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 990.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.50", "Nome Apropriação": "Insumos", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 500.0, "Observações": "A Pagar", "Código Apropriação": "2.02.01.04", "Nome Apropriação": "Vale Transporte", "Conjunto": "ADM COMERCIAL", "Definição": "PESSOAL ADMINISTRATIVO"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 2000.0, "Observações": "A Pagar", "Código Apropriação": "2.01.02.02", "Nome Apropriação": "Verbas Rescisões Trabalhistas", "Conjunto": "OBRAS", "Definição": "DESP PESSOAL OBRA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 3919.42, "Observações": "A Pagar", "Código Apropriação": "2.01.02.04", "Nome Apropriação": "Despesas com Alimentação", "Conjunto": "OBRAS", "Definição": "DESP PESSOAL OBRA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 167.4, "Observações": "A Pagar", "Código Apropriação": "2.01.03.03", "Nome Apropriação": "Locação de Equipamento", "Conjunto": "OBRAS", "Definição": "TERCEIRIZADOS"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 10444.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.01", "Nome Apropriação": "Aglomerantes", "Conjunto": "OBRAS", "Definição": "CONCRETO ARMADO"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 12286.4, "Observações": "A Pagar", "Código Apropriação": "2.01.04.02", "Nome Apropriação": "Agregados", "Conjunto": "OBRAS", "Definição": "CONCRETO ARMADO"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 52380.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.04", "Nome Apropriação": "Armadura", "Conjunto": "OBRAS", "Definição": "CONCRETO ARMADO"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 4050.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.11", "Nome Apropriação": "Hidráulico e Sanitário", "Conjunto": "OBRAS", "Definição": "HIDROSANITARIO-ELETRICO"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 29196.05, "Observações": "A Pagar", "Código Apropriação": "2.01.04.17", "Nome Apropriação": "Metais e Aparelhos", "Conjunto": "OBRAS", "Definição": "HIDROSANITARIO-ELETRICO"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 3745.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.20", "Nome Apropriação": "Revestimento", "Conjunto": "OBRAS", "Definição": "PISOS-REVESTIMENTO-PINTURA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 660.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.29", "Nome Apropriação": "Material Segurança", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Tipo": "Programado", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 3, "Apropriação Financeira": 1847.12, "Observações": "A Pagar", "Código Apropriação": "2.01.04.31", "Nome Apropriação": "Ferramentas", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "ALAMEDA BESSA", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 1065.05, "Observações": "A Pagar", "Código Apropriação": "2.01.04.17", "Nome Apropriação": "Metais e Aparelhos", "Conjunto": "OBRAS", "Definição": "HIDROSANITARIO-ELETRICO"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "ALAMEDA BESSA", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 3300.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.53", "Nome Apropriação": "Apartamento Decorado", "Conjunto": "ADM COMERCIAL", "Definição": "DESPESAS ADMINISTRATIVAS"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 15000.0, "Observações": "A Pagar", "Código Apropriação": "2.01.02.02", "Nome Apropriação": "Verbas Rescisões Trabalhistas", "Conjunto": "OBRAS", "Definição": "DESP PESSOAL OBRA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 15000.0, "Observações": "A Pagar", "Código Apropriação": "2.01.02.25", "Nome Apropriação": "FGTS - Rescisório", "Conjunto": "OBRAS", "Definição": "DESP PESSOAL OBRA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 100.0, "Observações": "A Pagar", "Código Apropriação": "2.01.03.05", "Nome Apropriação": "Consultoria", "Conjunto": "ADM COMERCIAL", "Definição": "PROJETOS/CONSULTORIAS"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 29.97, "Observações": "A Pagar", "Código Apropriação": "2.01.04.18", "Nome Apropriação": "Pintura", "Conjunto": "OBRAS", "Definição": "PISOS-REVESTIMENTO-PINTURA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 621.36, "Observações": "A Pagar", "Código Apropriação": "2.01.04.50", "Nome Apropriação": "Insumos", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 525.75, "Observações": "A Pagar", "Código Apropriação": "2.02.02.16", "Nome Apropriação": "Material de Expediente", "Conjunto": "ADM COMERCIAL", "Definição": "DESPESAS ADMINISTRATIVAS"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 9766.73, "Observações": "A Pagar", "Código Apropriação": "2.01.02.04", "Nome Apropriação": "Despesas com Alimentação", "Conjunto": "OBRAS", "Definição": "DESP PESSOAL OBRA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 200.0, "Observações": "A Pagar", "Código Apropriação": "2.01.03.05", "Nome Apropriação": "Consultoria", "Conjunto": "ADM COMERCIAL", "Definição": "PROJETOS/CONSULTORIAS"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 6344.8, "Observações": "A Pagar", "Código Apropriação": "2.01.04.02", "Nome Apropriação": "Agregados", "Conjunto": "OBRAS", "Definição": "CONCRETO ARMADO"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 1060.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.09", "Nome Apropriação": "Esquadrias de Madeira Porta", "Conjunto": "OBRAS", "Definição": "ESQUADRIAS"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 17550.0, "Observações": "A Pagar", "Código Apropriação": "2.01.04.11", "Nome Apropriação": "Hidráulico e Sanitário", "Conjunto": "OBRAS", "Definição": "HIDROSANITARIO-ELETRICO"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 1098.4, "Observações": "A Pagar", "Código Apropriação": "2.01.04.31", "Nome Apropriação": "Ferramentas", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 40168.84, "Observações": "A Pagar", "Código Apropriação": "2.01.04.39", "Nome Apropriação": "Fios e Cabos", "Conjunto": "OBRAS", "Definição": "HIDROSANITARIO-ELETRICO"}, {"Tipo": "Programado", "Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 924.28, "Observações": "A Pagar", "Código Apropriação": "2.02.02.16", "Nome Apropriação": "Material de Expediente", "Conjunto": "ADM COMERCIAL", "Definição": "DESPESAS ADMINISTRATIVAS"}, {"Tipo": "Ajuste", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 100.0, "Observações": "Pagamento antecipado (realizado em 03/06, programado para 04/06)", "Código Apropriação": "2.01.03.05", "Nome Apropriação": "Consultoria", "Conjunto": "ADM COMERCIAL", "Definição": "PROJETOS/CONSULTORIAS"}, {"Tipo": "Ajuste", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 29.97, "Observações": "Pagamento antecipado (realizado em 03/06, programado para 04/06)", "Código Apropriação": "2.01.04.18", "Nome Apropriação": "Pintura", "Conjunto": "OBRAS", "Definição": "PISOS-REVESTIMENTO-PINTURA"}, {"Tipo": "Ajuste", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 525.75, "Observações": "Pagamento antecipado (realizado em 03/06, programado para 04/06)", "Código Apropriação": "2.02.02.16", "Nome Apropriação": "Material de Expediente", "Conjunto": "ADM COMERCIAL", "Definição": "DESPESAS ADMINISTRATIVAS"}, {"Tipo": "Ajuste", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 100.0, "Observações": "Pagamento antecipado (realizado em 03/06, programado para 04/06)", "Código Apropriação": "2.01.03.05", "Nome Apropriação": "Consultoria", "Conjunto": "ADM COMERCIAL", "Definição": "PROJETOS/CONSULTORIAS"}, {"Tipo": "Ajuste", "Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "VIVA DELTA", "Empreendimento": "VILA JARDIM", "Ano": 2026, "Mês": 6, "Período": 4, "Apropriação Financeira": 525.75, "Observações": "Pagamento antecipado (realizado em 03/06, programado para 04/06)", "Código Apropriação": "2.02.02.16", "Nome Apropriação": "Material de Expediente", "Conjunto": "ADM COMERCIAL", "Definição": "DESPESAS ADMINISTRATIVAS"}], "pago": [{"Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Código Apropriação": "2.01.03.03", "Nome Apropriação": "Locação de Equipamento", "Apropriação Financeira": 3800.0, "Observações": "PAGO", "Conjunto": "OBRAS", "Definição": "TERCEIRIZADOS"}, {"Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Código Apropriação": "2.01.03.05", "Nome Apropriação": "Consultoria", "Apropriação Financeira": 100.0, "Observações": "PAGO", "Conjunto": "ADM COMERCIAL", "Definição": "PROJETOS/CONSULTORIAS"}, {"Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Código Apropriação": "2.01.04.15", "Nome Apropriação": "Limpeza", "Apropriação Financeira": 729.73, "Observações": "PAGO", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Código Apropriação": "2.01.04.18", "Nome Apropriação": "Pintura", "Apropriação Financeira": 29.97, "Observações": "PAGO", "Conjunto": "OBRAS", "Definição": "PISOS-REVESTIMENTO-PINTURA"}, {"Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Código Apropriação": "2.01.04.37", "Nome Apropriação": "Carpintaria e Marcenaria", "Apropriação Financeira": 1396.68, "Observações": "PAGO", "Conjunto": "OBRAS", "Definição": "COBERTA"}, {"Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Código Apropriação": "2.01.04.50", "Nome Apropriação": "Insumos", "Apropriação Financeira": 1611.36, "Observações": "PAGO", "Conjunto": "OBRAS", "Definição": "DEMAIS DESPESAS OBRA"}, {"Data": "03/06/2026", "Dia da Semana": "Quarta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 3, "Código Apropriação": "2.02.01.04", "Nome Apropriação": "Vale Transporte", "Apropriação Financeira": 500.0, "Observações": "PAGO", "Conjunto": "ADM COMERCIAL", "Definição": "PESSOAL ADMINISTRATIVO"}, {"Data": "04/06/2026", "Dia da Semana": "Quinta", "Empresa": "MRDELTA", "Empreendimento": "JARDINS DI CAPRI", "Ano": 2026, "Mês": 6, "Período": 4, "Código Apropriação": "2.02.02.16", "Nome Apropriação": "Material de Expediente", "Apropriação Financeira": 525.75, "Observações": "PAGO", "Conjunto": "ADM COMERCIAL", "Definição": "DESPESAS ADMINISTRATIVAS"}]};
+        const DIAS = ['Sexta', 'Sábado', 'Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta'];
+        const AZUL_DELTA = "#1B5BA4";
+
+        const calculateFridayOfWeek = (dataStr, diaSemana) => {
+            const [dia, mes, ano] = dataStr.split('/').map(Number);
+            const diaIndex = DIAS.indexOf(diaSemana);
+            let date = new Date(ano, mes - 1, dia);
+            date.setDate(date.getDate() - diaIndex);
+            const newDia = String(date.getDate()).padStart(2, '0');
+            const newMes = String(date.getMonth() + 1).padStart(2, '0');
+            const newAno = date.getFullYear();
+            return `${newDia}/${newMes}/${newAno}`;
+        };
+
+        const getWeeks = (data) => {
+            const weeks = {};
+            data.forEach(item => {
+                const friday = calculateFridayOfWeek(item.Data, item['Dia da Semana']);
+                if (!weeks[friday]) weeks[friday] = [];
+                weeks[friday].push(item);
+            });
+            return Object.keys(weeks).sort((a, b) => {
+                const [diaA, mesA, anoA] = a.split('/').map(Number);
+                const [diaB, mesB, anoB] = b.split('/').map(Number);
+                return new Date(anoA, mesA - 1, diaA) - new Date(anoB, mesB - 1, diaB);
+            }).map(friday => ({friday, count: weeks[friday].length}));
+        };
+
+        const getTodaysFriday = () => {
+            const today = new Date();
+            const dia = today.getDate();
+            const mes = today.getMonth() + 1;
+            const ano = today.getFullYear();
+            const dataStr = String(dia).padStart(2, '0') + '/' + String(mes).padStart(2, '0') + '/' + ano;
+            const jsToMyDay = {0: 2, 1: 3, 2: 4, 3: 5, 4: 6, 5: 0, 6: 1};
+            const dayOfWeek = today.getDay();
+            const myDayIndex = jsToMyDay[dayOfWeek];
+            return calculateFridayOfWeek(dataStr, DIAS[myDayIndex]);
+        };
+
+        function App() {
+            const [filters, setFilters] = React.useState({empresa:'', empreendimento:'', conjunto:'', definicao:''});
+            const [expanded, setExpanded] = React.useState({});
+            const [selectedWeek, setSelectedWeek] = React.useState(getTodaysFriday());
+
+            const allData = [...DATA.pagar, ...DATA.pago];
+            const opts = {
+                empresa: [...new Set(allData.map(i=>i.Empresa))].sort(),
+                empreendimento: [...new Set(allData.map(i=>i.Empreendimento))].sort(),
+                conjunto: [...new Set(allData.map(i=>i.Conjunto))].sort(),
+                definicao: [...new Set(allData.map(i=>i.Definição))].sort(),
+            };
+
+            const filtered = React.useMemo(() => ({
+                pagar: DATA.pagar.filter(i => (!filters.empresa||i.Empresa===filters.empresa)&&(!filters.empreendimento||i.Empreendimento===filters.empreendimento)&&(!filters.conjunto||i.Conjunto===filters.conjunto)&&(!filters.definicao||i.Definição===filters.definicao)&&(!selectedWeek||calculateFridayOfWeek(i.Data, i['Dia da Semana'])===selectedWeek)),
+                pago: DATA.pago.filter(i => (!filters.empresa||i.Empresa===filters.empresa)&&(!filters.empreendimento||i.Empreendimento===filters.empreendimento)&&(!filters.conjunto||i.Conjunto===filters.conjunto)&&(!filters.definicao||i.Definição===filters.definicao)&&(!selectedWeek||calculateFridayOfWeek(i.Data, i['Dia da Semana'])===selectedWeek)),
+            }), [filters, selectedWeek]);
+
+            const totals = React.useMemo(() => {
+                const pagar = filtered.pagar.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                const pago = filtered.pago.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                return { pagar, pago, diferenca: pagar - pago };
+            }, [filtered]);
+
+            const fmt = v => new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(v);
+
+            const toggle = k => setExpanded(p=>({...p, [k]:!p[k]}));
+
+            const Col = ({items, title, color}) => {
+                const groups = {};
+                items.forEach(i=>{if(!groups[i.Conjunto])groups[i.Conjunto]={};if(!groups[i.Conjunto][i.Definição])groups[i.Conjunto][i.Definição]=[];groups[i.Conjunto][i.Definição].push(i);});
+
+                let total = items.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+
+                return React.createElement('div', {className:'col'},
+                    React.createElement('div', {className:'col-title', style:{borderBottomColor:color}}, title),
+                    Object.entries(groups).sort((a,b)=>Object.values(b[1]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0)-Object.values(a[1]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0)).map(([conj, defs])=>{
+                        const conjTotal = Object.values(defs).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0);
+                        const conjKey = title+'-'+conj;
+                        const isOpen = expanded[conjKey];
+
+                        return React.createElement('div', {key:conj},
+                            React.createElement('button', {className:'item', onClick:()=>toggle(conjKey), style:{color:'#1a1a1a'}},
+                                React.createElement('span', {className:'item-name'},
+                                    React.createElement('span', {className:'arrow'}, isOpen?'▼':'▶'),
+                                    React.createElement('span', null, conj)
+                                ),
+                                React.createElement('span', {className:'item-value'}, fmt(conjTotal))
+                            ),
+                            isOpen&&React.createElement('div', {className:'nested active'},
+                                Object.entries(defs).sort((a,b)=>b[1].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0)-a[1].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0)).map(([def, items])=>{
+                                    const defTotal = items.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                                    const defKey = title+'-'+conj+'-'+def;
+                                    const isDefOpen = expanded[defKey];
+
+                                    return React.createElement('div', {key:def},
+                                        React.createElement('button', {className:'item', onClick:()=>toggle(defKey), style:{color:'#666', border:'none', background:'transparent', width:'100%', textAlign:'left', display:'flex', justifyContent:'space-between'}},
+                                            React.createElement('span', null, React.createElement('span', {className:'arrow'}, isDefOpen?'▼':'▶'), def),
+                                            React.createElement('span', {style:{fontWeight:600}}, fmt(defTotal))
+                                        ),
+                                        isDefOpen&&React.createElement('div', {className:'list active'},
+                                            items.map((it, ix)=>
+                                                React.createElement('div', {key:ix, className:'list-item'},
+                                                    React.createElement('span', {className:'code'}, it['Código Apropriação']),
+                                                    React.createElement('span', {className:'name'}, it['Nome Apropriação']),
+                                                    React.createElement('span', {className:'value'}, fmt(it['Apropriação Financeira']))
+                                                )
+                                            )
+                                        )
+                                    );
+                                })
+                            )
+                        );
+                    }),
+                    React.createElement('div', {style:{fontWeight:700, borderTop:'2px solid #d1d1d1', paddingTop:10, marginTop:8, background:'#f5f7fa', borderRadius:'4px', padding:'8px', display:'flex', justifyContent:'space-between'}},
+                        React.createElement('span', null, 'Total'),
+                        React.createElement('span', {style:{color}}, fmt(total))
+                    )
+                );
+            };
+
+            const weeks = getWeeks([...DATA.pagar, ...DATA.pago]);
+            const weekFiltered = selectedWeek ? {
+                pagar: DATA.pagar.filter(i => calculateFridayOfWeek(i.Data, i['Dia da Semana']) === selectedWeek),
+                pago: DATA.pago.filter(i => calculateFridayOfWeek(i.Data, i['Dia da Semana']) === selectedWeek),
+            } : { pagar: [], pago: [] };
+
+            return React.createElement('div', null,
+                weeks.length > 0 && React.createElement('div', {className:'weeks-container'},
+                    React.createElement('div', {className:'weeks-label'}, '📅 Semanas (Sexta a Quinta)'),
+                    React.createElement('div', {className:'weeks-grid'},
+                        weeks.map(w => React.createElement('button', {key:w.friday, className:'week-button' + (selectedWeek === w.friday ? ' active' : ''), onClick:()=>setSelectedWeek(selectedWeek === w.friday ? null : w.friday)},
+                            w.friday + (selectedWeek === w.friday ? ' ✓' : '')
+                        ))
+                    )
+                ),
+                React.createElement('h1', null, 'Filtros'),
+                React.createElement('div', {className:'filters-grid'},
+                    React.createElement('div', {className:'filter-item'},
+                        React.createElement('label', null, 'Empresa'),
+                        React.createElement('select', {value:filters.empresa, onChange:e=>setFilters(p=>({...p,empresa:e.target.value}))},
+                            React.createElement('option', {value:''}, 'Todas'),
+                            opts.empresa.map(o=>React.createElement('option', {key:o, value:o}, o))
+                        )
+                    ),
+                    React.createElement('div', {className:'filter-item'},
+                        React.createElement('label', null, 'Empreendimento'),
+                        React.createElement('select', {value:filters.empreendimento, onChange:e=>setFilters(p=>({...p,empreendimento:e.target.value}))},
+                            React.createElement('option', {value:''}, 'Todos'),
+                            opts.empreendimento.map(o=>React.createElement('option', {key:o, value:o}, o))
+                        )
+                    ),
+                    React.createElement('div', {className:'filter-item'},
+                        React.createElement('label', null, 'Conjunto'),
+                        React.createElement('select', {value:filters.conjunto, onChange:e=>setFilters(p=>({...p,conjunto:e.target.value}))},
+                            React.createElement('option', {value:''}, 'Todos'),
+                            opts.conjunto.map(o=>React.createElement('option', {key:o, value:o}, o))
+                        )
+                    ),
+                    React.createElement('div', {className:'filter-item'},
+                        React.createElement('label', null, 'Definição'),
+                        React.createElement('select', {value:filters.definicao, onChange:e=>setFilters(p=>({...p,definicao:e.target.value}))},
+                            React.createElement('option', {value:''}, 'Todas'),
+                            opts.definicao.map(o=>React.createElement('option', {key:o, value:o}, o))
+                        )
+                    )
+                ),
+                React.createElement('h1', {style:{marginTop:24}}, 'Resumo Geral'),
+                React.createElement('div', {className:'summary-grid'},
+                    React.createElement('div', {className:'summary-card'},
+                        React.createElement('div', {className:'summary-label', style:{color:AZUL_DELTA}}, '💰 A PAGAR'),
+                        React.createElement('div', {className:'summary-value', style:{color:AZUL_DELTA}}, fmt(totals.pagar))
+                    ),
+                    React.createElement('div', {className:'summary-card'},
+                        React.createElement('div', {className:'summary-label', style:{color:'#16a34a'}}, '✅ PAGO'),
+                        React.createElement('div', {className:'summary-value', style:{color:'#16a34a'}}, fmt(totals.pago))
+                    ),
+                    React.createElement('div', {className:'summary-card'},
+                        React.createElement('div', {className:'summary-label', style:{color:totals.diferenca<0?'#dc2626':'#d97706'}}, '📊 DIFERENÇA'),
+                        React.createElement('div', {className:'summary-value'}, fmt(totals.diferenca))
+                    )
+                ),
+                React.createElement('h1', {style:{marginTop:24}}, 'Por Dia da Semana'),
+                React.createElement('div', {className:'days-container'},
+                    DIAS.filter(d => d !== 'Sábado' && d !== 'Domingo').map(dia=>{
+                        const dayPagar = filtered.pagar.filter(i=>i['Dia da Semana']===dia);
+                        const dayPago = filtered.pago.filter(i=>i['Dia da Semana']===dia);
+                        if(!dayPagar.length&&!dayPago.length)return null;
+
+                        const dayPagarTotal = dayPagar.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                        const dayPagoTotal = dayPago.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                        const dayDiff = dayPagarTotal - dayPagoTotal;
+                        const dayDate = dayPagar[0]?.Data || dayPago[0]?.Data;
+                        const dayKey = dia;
+                        const isDayOpen = expanded[dayKey];
+                        const empresas = [...new Set([...dayPagar.map(i=>i.Empreendimento), ...dayPago.map(i=>i.Empreendimento)])];
+
+                        return React.createElement('div', {key:dia, className:'day-card'},
+                            React.createElement('div', {className:'day-header', onClick:()=>toggle(dayKey)},
+                                React.createElement('div', {className:'day-header-left'},
+                                    React.createElement('span', {className:'arrow'}, isDayOpen?'▼':'▶'),
+                                    React.createElement('div', null,
+                                        React.createElement('div', {className:'day-title'}, dia),
+                                        React.createElement('div', {className:'day-date'}, dayDate)
+                                    )
+                                ),
+                                React.createElement('div', {className:'day-totals'},
+                                    React.createElement('span', {className:'badge'},
+                                        React.createElement('span', {className:'badge-label'}, 'A Pagar'),
+                                        React.createElement('span', {className:'badge-value', style:{color:AZUL_DELTA}}, fmt(dayPagarTotal))
+                                    ),
+                                    React.createElement('span', {className:'badge'},
+                                        React.createElement('span', {className:'badge-label'}, 'Pago'),
+                                        React.createElement('span', {className:'badge-value', style:{color:'#16a34a'}}, fmt(dayPagoTotal))
+                                    ),
+                                    React.createElement('span', {className:'badge'},
+                                        React.createElement('span', {className:'badge-label'}, 'Diferença'),
+                                        React.createElement('span', {className:'badge-value', style:{color:dayDiff<0?'#dc2626':'#d97706'}}, fmt(dayDiff))
+                                    )
+                                )
+                            ),
+                            isDayOpen&&React.createElement('div', null,
+                                empresas.map(empr=>{
+                                    const emprPagar = dayPagar.filter(i=>i.Empreendimento===empr);
+                                    const emprPago = dayPago.filter(i=>i.Empreendimento===empr);
+                                    const emprPagarTotal = emprPagar.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                                    const emprPagoTotal = emprPago.reduce((s,i)=>s+(i['Apropriação Financeira']||0),0);
+                                    const emprDiff = emprPagarTotal - emprPagoTotal;
+                                    const emprKey = 'empr-'+empr;
+                                    const isEmprOpen = expanded[emprKey];
+
+                                    return React.createElement('div', {key:empr},
+                                        React.createElement('div', {className:'empreendimento-header', onClick:()=>toggle(emprKey)},
+                                            React.createElement('span', {className:'empreendimento-name'},
+                                                React.createElement('span', {className:'arrow'}, isEmprOpen?'▼':'▶'),
+                                                React.createElement('span', null, empr)
+                                            ),
+                                            React.createElement('div', {className:'empreendimento-totals'},
+                                                React.createElement('div', {className:'empreendimento-total'},
+                                                    React.createElement('span', {className:'total-label'}, 'A Pagar'),
+                                                    React.createElement('span', {className:'total-value', style:{color:AZUL_DELTA}}, fmt(emprPagarTotal))
+                                                ),
+                                                React.createElement('div', {className:'empreendimento-total'},
+                                                    React.createElement('span', {className:'total-label'}, 'Pago'),
+                                                    React.createElement('span', {className:'total-value', style:{color:'#16a34a'}}, fmt(emprPagoTotal))
+                                                ),
+                                                React.createElement('div', {className:'empreendimento-total'},
+                                                    React.createElement('span', {className:'total-label'}, 'Diferença'),
+                                                    React.createElement('span', {className:'total-value', style:{color:emprDiff<0?'#dc2626':'#d97706'}}, fmt(emprDiff))
+                                                )
+                                            )
+                                        ),
+                                        isEmprOpen&&React.createElement('div', {style:{padding:'12px', background:'#f9fafb'}},
+                                            (() => {
+                                                const pagarGroups = {};
+                                                const pagoGroups = {};
+                                                emprPagar.forEach(i=>{if(!pagarGroups[i.Conjunto])pagarGroups[i.Conjunto]={};if(!pagarGroups[i.Conjunto][i.Definição])pagarGroups[i.Conjunto][i.Definição]=[];pagarGroups[i.Conjunto][i.Definição].push(i);});
+                                                emprPago.forEach(i=>{if(!pagoGroups[i.Conjunto])pagoGroups[i.Conjunto]={};if(!pagoGroups[i.Conjunto][i.Definição])pagoGroups[i.Conjunto][i.Definição]=[];pagoGroups[i.Conjunto][i.Definição].push(i);});
+
+                                                const allConjuntos = new Set([...Object.keys(pagarGroups), ...Object.keys(pagoGroups)]);
+                                                const sortedConjuntos = [...allConjuntos].sort((a,b)=>{
+                                                    const aTotal = (pagarGroups[a]?Object.values(pagarGroups[a]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0):0) - (pagoGroups[a]?Object.values(pagoGroups[a]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0):0);
+                                                    const bTotal = (pagarGroups[b]?Object.values(pagarGroups[b]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0):0) - (pagoGroups[b]?Object.values(pagoGroups[b]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0):0);
+                                                    return bTotal - aTotal;
+                                                });
+
+                                                const renderCol = (colName, colColor, isPago, isDiff) => {
+                                                    return React.createElement('div', null,
+                                                        React.createElement('div', {style:{fontSize:'11px', fontWeight:700, color:colColor, marginBottom:'8px', paddingBottom:'8px', borderBottom:'2px solid ' + colColor}}, colName),
+                                                        sortedConjuntos.map(conj=>{
+                                                            const conjKey = emprKey+'-'+conj;
+                                                            const isConjOpen = expanded[conjKey];
+                                                            const conjValPagar = pagarGroups[conj]?Object.values(pagarGroups[conj]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0):0;
+                                                            const conjValPago = pagoGroups[conj]?Object.values(pagoGroups[conj]).reduce((s,arr)=>s+arr.reduce((v,i)=>v+(i['Apropriação Financeira']||0),0),0):0;
+                                                            const conjValDiff = conjValPagar - conjValPago;
+                                                            const conjVal = isDiff ? conjValDiff : (isPago ? conjValPago : conjValPagar);
+
+                                                            const allDefs = new Set([...(pagarGroups[conj]?Object.keys(pagarGroups[conj]):[]), ...(pagoGroups[conj]?Object.keys(pagoGroups[conj]):[])]);
+                                                            const sortedDefs = [...allDefs].sort((a,b)=>{
+                                                                const aVal = (pagarGroups[conj]&&pagarGroups[conj][a]?pagarGroups[conj][a].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0):0) - (pagoGroups[conj]&&pagoGroups[conj][a]?pagoGroups[conj][a].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0):0);
+                                                                const bVal = (pagarGroups[conj]&&pagarGroups[conj][b]?pagarGroups[conj][b].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0):0) - (pagoGroups[conj]&&pagoGroups[conj][b]?pagoGroups[conj][b].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0):0);
+                                                                return bVal - aVal;
+                                                            });
+
+                                                            return React.createElement('div', {key:conj, style:{marginBottom:'4px'}},
+                                                                React.createElement('button', {onClick:()=>toggle(conjKey), style:{width:'100%', textAlign:'left', background:'#f0f0f0', border:'none', cursor:'pointer', padding:'4px 6px', display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:'10px', fontWeight:700, color:colColor, borderRadius:'3px', marginBottom:'2px'}},
+                                                                    React.createElement('span', null, isConjOpen?'▼':'▶', ' ' + conj),
+                                                                    React.createElement('span', null, fmt(conjVal))
+                                                                ),
+                                                                isConjOpen && sortedDefs.map(def=>{
+                                                                    const defKey = conjKey+'-'+def;
+                                                                    const isDefOpen = expanded[defKey];
+                                                                    const defValPagar = pagarGroups[conj]&&pagarGroups[conj][def] ? pagarGroups[conj][def].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0) : 0;
+                                                                    const defValPago = pagoGroups[conj]&&pagoGroups[conj][def] ? pagoGroups[conj][def].reduce((s,i)=>s+(i['Apropriação Financeira']||0),0) : 0;
+                                                                    const defValDiff = defValPagar - defValPago;
+                                                                    const defVal = isDiff ? defValDiff : (isPago ? defValPago : defValPagar);
+
+                                                                    const allItems = new Set([...(pagarGroups[conj]&&pagarGroups[conj][def]?pagarGroups[conj][def].map(i=>i['Código Apropriação']):[]), ...(pagoGroups[conj]&&pagoGroups[conj][def]?pagoGroups[conj][def].map(i=>i['Código Apropriação']):[])]);
+                                                                    const sortedItems = [...allItems].sort((a,b)=>{
+                                                                        const aVal = (pagarGroups[conj]&&pagarGroups[conj][def]?pagarGroups[conj][def].find(i=>i['Código Apropriação']===a)?.['Apropriação Financeira']||0:0);
+                                                                        const bVal = (pagarGroups[conj]&&pagarGroups[conj][def]?pagarGroups[conj][def].find(i=>i['Código Apropriação']===b)?.['Apropriação Financeira']||0:0);
+                                                                        return bVal - aVal;
+                                                                    });
+
+                                                                    return React.createElement('div', {key:def, style:{marginLeft:'6px', marginBottom:'3px'}},
+                                                                        React.createElement('button', {onClick:()=>toggle(defKey), style:{width:'100%', textAlign:'left', background:'#f9f9f9', border:'none', cursor:'pointer', padding:'3px 6px', display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:'9px', fontWeight:600, color:colColor, borderRadius:'2px', marginBottom:'1px'}},
+                                                                            React.createElement('span', null, isDefOpen?'▼':'▶', ' ' + def),
+                                                                            React.createElement('span', null, fmt(defVal))
+                                                                        ),
+                                                                        isDefOpen && sortedItems.map((codigo, ix)=>{
+                                                                            const item = pagarGroups[conj]&&pagarGroups[conj][def] ? pagarGroups[conj][def].find(i=>i['Código Apropriação']===codigo) : (pagoGroups[conj]&&pagoGroups[conj][def] ? pagoGroups[conj][def].find(i=>i['Código Apropriação']===codigo) : null);
+                                                                            const itemValPagar = pagarGroups[conj]&&pagarGroups[conj][def] ? (pagarGroups[conj][def].find(p=>p['Código Apropriação']===codigo)?.['Apropriação Financeira'])||0 : 0;
+                                                                            const itemValPago = pagoGroups[conj]&&pagoGroups[conj][def] ? (pagoGroups[conj][def].find(p=>p['Código Apropriação']===codigo)?.['Apropriação Financeira'])||0 : 0;
+                                                                            const itemValDiff = itemValPagar - itemValPago;
+                                                                            const itemVal = isDiff ? itemValDiff : (isPago ? itemValPago : itemValPagar);
+                                                                            const nome = item?.['Nome Apropriação'] || '';
+
+                                                                            return React.createElement('div', {key:ix, style:{marginLeft:'12px', fontSize:'8px', padding:'2px 6px', borderBottom:'1px solid #e0e0e0', display:'flex', justifyContent:'space-between', gap:'4px'}},
+                                                                                React.createElement('span', {style:{fontWeight:600, color:'#1B5BA4', minWidth:'50px'}}, codigo),
+                                                                                React.createElement('span', {style:{flex:1, color:'#666', textAlign:'center'}}, nome),
+                                                                                React.createElement('span', {style:{fontWeight:600, textAlign:'right', minWidth:'60px', color:itemVal===0?'#999':(itemVal<0?'#dc2626':colColor), fontWeight:itemVal===0?400:600}}, fmt(itemVal))
+                                                                            );
+                                                                        })
+                                                                    );
+                                                                })
+                                                            );
+                                                        })
+                                                    );
+                                                };
+
+                                                return React.createElement('div', {style:{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'8px', padding:'0'}},
+                                                    renderCol('A PAGAR', AZUL_DELTA, false, false),
+                                                    renderCol('PAGO', '#16a34a', true, false),
+                                                    renderCol('DIFERENÇA', '#d97706', false, true)
+                                                );
+                                            })()
+                                        )
+                                    );
+                                })
+                            )
+                        );
+                    })
+                )
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
