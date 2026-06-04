@@ -70,6 +70,8 @@
         .week-button { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #1a1a1a; transition: all 0.2s; }
         .week-button:hover { border-color: #1B5BA4; box-shadow: 0 0 0 3px rgba(27,91,164,0.08); }
         .week-button.active { background: #1B5BA4; color: white; border-color: #1B5BA4; }
+        button { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #1a1a1a; transition: all 0.2s; }
+        button:hover { border-color: #1B5BA4; box-shadow: 0 0 0 3px rgba(27,91,164,0.08); }
         @media (max-width: 768px) {
             .comparison-row { grid-template-columns: 1fr; }
             .col { border-right: none; border-bottom: 1px solid #e0e0e0; }
@@ -113,6 +115,7 @@
                     <h1>GRUPO DELTA</h1>
                     <p>Acompanhamento Financeiro</p>
                     <p style="font-size: 10px; color: #999; margin-top: 4px;">Atualizado: 04/06/2026 às 17:05</p>
+                    <p style="font-size: 9px; color: #999; margin-top: 2px;">Responsável: Luiz Carlos Tenório Cavalcanti Filho</p>
                 </div>
             </div>
             <div style="text-align: right;">
@@ -270,7 +273,10 @@
                         ))
                     )
                 ),
-                React.createElement('h1', null, 'Filtros'),
+                React.createElement('div', {style:{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}},
+                    React.createElement('h1', {style:{margin:0}}, 'Filtros'),
+                    React.createElement('button', {onClick:()=>{setFilters({empresa:'', empreendimento:'', conjunto:'', definicao:''});setSelectedWeek('05/06/2026');}}, 'Limpar todos os filtros')
+                ),
                 React.createElement('div', {className:'filters-grid'},
                     React.createElement('div', {className:'filter-item'},
                         React.createElement('label', null, 'Empresa'),
@@ -331,6 +337,13 @@
                         const isDayOpen = expanded[dayKey];
                         const empresas = [...new Set([...dayPagar.map(i=>i.Empreendimento), ...dayPago.map(i=>i.Empreendimento)])];
 
+                        const clearDayHierarchies = () => {
+                            const keysToDelete = Object.keys(expanded).filter(k => k === dayKey || k.startsWith(dayKey + '-'));
+                            const newExpanded = {...expanded};
+                            keysToDelete.forEach(k => delete newExpanded[k]);
+                            setExpanded(newExpanded);
+                        };
+
                         return React.createElement('div', {key:dia, className:'day-card'},
                             React.createElement('div', {className:'day-header', onClick:()=>toggle(dayKey)},
                                 React.createElement('div', {className:'day-header-left'},
@@ -352,7 +365,8 @@
                                     React.createElement('span', {className:'badge'},
                                         React.createElement('span', {className:'badge-label'}, 'Diferença'),
                                         React.createElement('span', {className:'badge-value', style:{color:dayDiff<0?'#dc2626':'#d97706'}}, fmt(dayDiff))
-                                    )
+                                    ),
+                                    React.createElement('button', {onClick:e=>{e.stopPropagation();clearDayHierarchies();}, style:{marginLeft:'12px', padding:'4px 8px', fontSize:'11px', background:'#f0f0f0', border:'1px solid #ccc', borderRadius:'3px', cursor:'pointer'}}, 'Limpar')
                                 )
                             ),
                             isDayOpen&&React.createElement('div', null,
