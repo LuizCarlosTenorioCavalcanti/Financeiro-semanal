@@ -7,27 +7,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <style>
-        * { margin:0;padding:0;box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
-        body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#f0f2f5 100%);color:#1a1a1a;min-height:100vh; }
-        .main-header { background:linear-gradient(135deg,#1B5BA4 0%,#2B75B8 100%);color:white;padding:14px 20px 0 20px;box-shadow:0 4px 12px rgba(27,91,164,0.25);position:sticky;top:0;z-index:200; }
-        .main-header-top { max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px; }
-        .logo-area { display:flex;align-items:center;gap:12px; }
-        .logo-area img { height:36px;width:auto; }
-        .logo-area .brand { font-size:20px;font-weight:700;letter-spacing:1px;color:white; }
-        .logo-area .resp { font-size:10px;color:rgba(255,255,255,0.8);margin-top:2px; }
-        .version-info { font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);text-align:right;white-space:nowrap; }
-        .subheader { max-width:1400px;margin:0 auto;display:flex;gap:4px;padding-top:6px; }
-        .tab-btn { padding:9px 22px;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:13px;font-weight:600;cursor:pointer;border-radius:6px 6px 0 0;transition:all 0.2s;letter-spacing:0.3px; }
-        .tab-btn:hover { background:rgba(255,255,255,0.25);color:white; }
-        .tab-btn.active { background:white;color:#1B5BA4; }
-        .info-bar { background:#f0f5fb;border-bottom:3px solid #1B5BA4;padding:10px 20px; }
-        .info-bar-inner { max-width:1400px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:16px; }
-        .info-bar .dash-title { font-size:16px;font-weight:700;color:#1B5BA4; }
-        .info-bar .dash-meta { font-size:11px;color:#555; }
-        .info-bar .dash-prog { font-size:11px;color:#777;font-style:italic; }
-        #tab-financeiro,#tab-contratos { display:none; }
-        #tab-financeiro.active,#tab-contratos.active { display:block; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#f0f2f5 100%);color:#1a1a1a;min-height:100vh}
+        .main-header{background:linear-gradient(135deg,#1B5BA4 0%,#2B75B8 100%);color:white;padding:14px 20px 0 20px;box-shadow:0 4px 12px rgba(27,91,164,0.25);position:sticky;top:0;z-index:200}
+        .main-header-top{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px}
+        .logo-area{display:flex;align-items:center;gap:12px}
+        .logo-area img{height:36px;width:auto}
+        .logo-area .brand{font-size:20px;font-weight:700;letter-spacing:1px;color:white}
+        .logo-area .resp{font-size:10px;color:rgba(255,255,255,0.8);margin-top:2px}
+        .version-info{font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);text-align:right;white-space:nowrap}
+        .subheader{max-width:1400px;margin:0 auto;display:flex;gap:4px;padding-top:6px}
+        .tab-btn{padding:9px 22px;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:13px;font-weight:600;cursor:pointer;border-radius:6px 6px 0 0;transition:all 0.2s;letter-spacing:0.3px}
+        .tab-btn:hover{background:rgba(255,255,255,0.25);color:white}
+        .tab-btn.active{background:white;color:#1B5BA4}
+        .info-bar{background:#f0f5fb;border-bottom:3px solid #1B5BA4;padding:10px 20px}
+        .info-bar-inner{max-width:1400px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+        .info-bar .dash-title{font-size:16px;font-weight:700;color:#1B5BA4}
+        .info-bar .dash-meta{font-size:11px;color:#555}
+        .info-bar .dash-prog{font-size:11px;color:#777;font-style:italic}
+        #tab-financeiro,#tab-contratos{display:none}
+        #tab-financeiro.active,#tab-contratos.active{display:block}
         
         #tab-financeiro *{ margin: 0; padding: 0; box-sizing: border-box; }
         html{ scroll-behavior: smooth; }
@@ -740,14 +740,14 @@
         #tab-contratos .tree-table-wrapper{ padding: 8px 0 12px 14px; overflow-x: auto; }
     
         
-        #loading-overlay { position:fixed;inset:0;background:rgba(255,255,255,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s ease; }
-        #loading-overlay.fade-out { opacity:0;pointer-events:none; }
-        .loading-ring { position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center; }
-        .loading-ring svg { position:absolute;top:0;left:0;animation:spin 1.4s linear infinite; }
-        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        .loading-ring img { width:64px;height:64px;object-fit:contain;filter:brightness(0) saturate(100%) invert(47%) sepia(98%) saturate(400%) hue-rotate(163deg) brightness(95%); }
-        .loading-text { margin-top:20px;font-family:'Segoe UI',sans-serif;font-size:14px;font-weight:600;color:#00b4d8;letter-spacing:2px;text-transform:uppercase;animation:pulse 1.4s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        #loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s ease}
+        #loading-overlay.fade-out{opacity:0;pointer-events:none}
+        .loading-ring{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+        .loading-ring svg{position:absolute;top:0;left:0;animation:spin 1.4s linear infinite}
+        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        .loading-ring img{width:64px;height:64px;object-fit:contain;filter:brightness(0) saturate(100%) invert(47%) sepia(98%) saturate(400%) hue-rotate(163deg) brightness(95%)}
+        .loading-text{margin-top:20px;font-family:'Segoe UI',sans-serif;font-size:14px;font-weight:600;color:#00b4d8;letter-spacing:2px;text-transform:uppercase;animation:pulse 1.4s ease-in-out infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
         @media(max-width:600px){.logo-area .brand{font-size:15px}.tab-btn{padding:8px 12px;font-size:11px}.info-bar .dash-title{font-size:14px}}
     </style>
 </head>
@@ -1812,8 +1812,12 @@
             const mesData = {};
             contratos.forEach(c => {
                 if (c.data_assinatura && isVendido(c.status_vendas)) {
-                    const mes = c.data_assinatura.substring(0, 7);
-                    mesData[mes] = (mesData[mes] || 0) + 1;
+                    // data no formato dd/mm/yyyy → agrupar como yyyy-mm
+                    const parts = c.data_assinatura.split('/');
+                    if (parts.length === 3) {
+                        const mes = parts[2] + '-' + parts[1];
+                        mesData[mes] = (mesData[mes] || 0) + 1;
+                    }
                 }
             });
 
@@ -2118,40 +2122,31 @@ var TAB_DATA = {
         version: 'v.2.0'
     }
 };
-
 var _contratosInited = false;
-
 function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + name).classList.add('active');
-    document.querySelectorAll('#tab-financeiro, #tab-contratos').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('btn-'+name).classList.add('active');
+    document.querySelectorAll('#tab-financeiro,#tab-contratos').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
     var d = TAB_DATA[name];
     document.getElementById('infoTitle').textContent = d.title;
     document.getElementById('infoData').textContent = d.data;
     document.getElementById('infoProg').textContent = d.prog;
     document.getElementById('versionDisplay').textContent = d.version;
     if (name === 'contratos') {
-        if (!_contratosInited) {
-            _contratosInited = true;
-            setTimeout(function() { init(); }, 30);
-        } else {
-            setTimeout(function() { renderStaticCharts(); updateDashboard(); }, 30);
-        }
+        if (!_contratosInited) { _contratosInited = true; setTimeout(function(){init();}, 30); }
+        else { setTimeout(function(){renderStaticCharts();updateDashboard();}, 30); }
     }
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({top:0,behavior:'smooth'});
 }
-
 switchTab('financeiro');
-
 function hideLoading() {
     var o = document.getElementById('loading-overlay');
     if (!o) return;
     o.classList.add('fade-out');
-    setTimeout(function() { o.style.display = 'none'; }, 500);
+    setTimeout(function(){o.style.display='none';}, 500);
 }
-window.addEventListener('load', function() { setTimeout(hideLoading, 600); });
+window.addEventListener('load', function(){setTimeout(hideLoading,600);});
 </script>
-
 </body>
 </html>
