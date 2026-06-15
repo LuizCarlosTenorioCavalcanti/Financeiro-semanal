@@ -36,8 +36,8 @@
         .info-bar .dash-meta{font-size:11px;color:#555}
         .info-bar .dash-prog{font-size:11px;color:#777;font-style:italic}
         .info-bar .dash-version{font-size:10px;font-weight:700;color:#1B5BA4;background:rgba(27,91,164,0.1);border:1px solid rgba(27,91,164,0.2);padding:2px 9px;border-radius:20px;letter-spacing:0.3px}
-        #tab-financeiro,#tab-contratos{display:none}
-        #tab-financeiro.active,#tab-contratos.active{display:block}
+        #tab-financeiro,#tab-a-receber,#tab-contratos{display:none}
+        #tab-financeiro.active,#tab-a-receber.active,#tab-contratos.active{display:block}
         
         #tab-financeiro *{ margin: 0; padding: 0; box-sizing: border-box; }
         html{ scroll-behavior: smooth; }
@@ -775,7 +775,10 @@
             /* Entrada dos blocos de contratos – disparada por JS ao abrir a aba */
             #tab-contratos .kpi-card.anim-in,
             #tab-contratos .chart-wrapper.anim-in,
-            #tab-contratos .table-section.anim-in{
+            #tab-contratos .table-section.anim-in,
+            #tab-a-receber .summary-card.anim-in,
+            #tab-a-receber .chart-card.anim-in,
+            #tab-a-receber .week-card.anim-in{
                 animation:fadeUp 0.6s cubic-bezier(.22,1,.36,1) backwards;
             }
         }
@@ -856,7 +859,27 @@
         /* destaque suave ao receber foco/âncora de navegação */
         @keyframes flashHighlight{0%{background-color:rgba(27,91,164,0.18)}100%{background-color:transparent}}
         .nav-flash{animation:flashHighlight 1.4s ease-out}
-    </style>
+    
+        /* ── A RECEBER ── */
+        #tab-a-receber *{ margin: 0; padding: 0; box-sizing: border-box; }#tab-a-receber{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%); color: #1a1a1a; }#tab-a-receber .header{ background: linear-gradient(135deg, #1B5BA4 0%, #2B75B8 100%); color: white; padding: 20px; box-shadow: 0 4px 12px rgba(27,91,164,0.2); position: sticky; top: 0; z-index: 100; }#tab-a-receber .header-content{ max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }#tab-a-receber .logo-title{ font-size: 20px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; }#tab-a-receber .logo-sub{ font-size: 12px; opacity: 0.9; margin-top: 3px; }#tab-a-receber .container{ max-width: 1300px; margin: 0 auto; padding: 24px 12px; }#tab-a-receber .sec-title{ font-size: 10px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+
+        /* Filtros card */#tab-a-receber .filters-card{ background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+
+        /* Linha de dropdowns superior (Mês + Semanas) */#tab-a-receber .top-filters{ display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 16px; }#tab-a-receber .filter-block{ position: relative; flex: 1; min-width: 200px; max-width: 340px; }#tab-a-receber .filter-block label{ display: block; font-size: 10px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px; }
+
+        /* Dropdown trigger */#tab-a-receber .dd-trigger{ width: 100%; padding: 9px 36px 9px 12px; border: 2px solid #e0e0e0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #1a1a1a; display: flex; align-items: center; justify-content: space-between; user-select: none; transition: border-color 0.2s; }#tab-a-receber .dd-trigger:hover,#tab-a-receber .dd-trigger.open{ border-color: #1B5BA4; }#tab-a-receber .dd-trigger .dd-arrow{ font-size: 10px; color: #1B5BA4; transition: transform 0.2s; }#tab-a-receber .dd-trigger.open .dd-arrow{ transform: rotate(180deg); }#tab-a-receber .dd-trigger .dd-text{ flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Dropdown menu */#tab-a-receber .dd-menu{ position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 2px solid #1B5BA4; border-radius: 6px; box-shadow: 0 8px 24px rgba(27,91,164,0.15); z-index: 200; overflow: hidden; max-height: 260px; overflow-y: auto; }#tab-a-receber .dd-item{ padding: 10px 14px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: background 0.15s; border-bottom: 1px solid #f0f0f0; }#tab-a-receber .dd-item:last-child{ border-bottom: none; }#tab-a-receber .dd-item:hover{ background: #f0f5fb; }#tab-a-receber .dd-item.selected{ background: #e8f1f9; font-weight: 700; color: #1B5BA4; }#tab-a-receber .dd-item .chk{ width: 16px; height: 16px; border: 2px solid #ccc; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }#tab-a-receber .dd-item.selected .chk{ background: #1B5BA4; border-color: #1B5BA4; color: white; }#tab-a-receber .dd-item .radio{ width: 16px; height: 16px; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }#tab-a-receber .dd-item.selected .radio{ border-color: #1B5BA4; }#tab-a-receber .dd-item.selected .radio::after{ content: ''; display: block; width: 8px; height: 8px; background: #1B5BA4; border-radius: 50%; }
+
+        /* Linha filtros empresa/empreendimento */#tab-a-receber .filters-row{ display: flex; gap: 12px; flex-wrap: wrap; }#tab-a-receber .filter-item{ flex: 1; min-width: 160px; }#tab-a-receber .filter-item label{ display: block; font-size: 10px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.6px; }#tab-a-receber select{ width: 100%; padding: 9px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; background: white; cursor: pointer; font-weight: 500; }#tab-a-receber select:focus{ outline: none; border-color: #1B5BA4; }
+
+        /* Resumo */#tab-a-receber .summary-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }#tab-a-receber .summary-card{ background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; transition: all 0.2s; }#tab-a-receber .summary-card:hover{ box-shadow: 0 4px 12px rgba(27,91,164,0.1); transform: translateY(-2px); border-color: #1B5BA4; }#tab-a-receber .s-label{ font-size: 10px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; min-height: 30px; }#tab-a-receber .s-value{ font-size: 20px; font-weight: 700; }
+
+        /* Estrutura expansível */#tab-a-receber .weeks-list{ display: flex; flex-direction: column; gap: 10px; }#tab-a-receber .week-card{ background: white; border: 2px solid #e0e0e0; border-radius: 8px; overflow: hidden; }#tab-a-receber .week-hdr{ background: linear-gradient(135deg, #f0f5fb, #e8f1f9); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-bottom: 3px solid #1B5BA4; }#tab-a-receber .week-hdr:hover{ background: linear-gradient(135deg, #e8f1f9, #e0ecf7); }#tab-a-receber .week-lbl{ font-weight: 700; font-size: 15px; color: #1B5BA4; display: flex; align-items: center; gap: 10px; }#tab-a-receber .emp-row{ border-top: 1px solid #eee; }#tab-a-receber .emp-hdr{ background: linear-gradient(135deg, #f9fafb, #f3f4f6); padding: 11px 16px 11px 30px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-left: 4px solid #1B5BA4; }#tab-a-receber .emp-hdr:hover{ background: linear-gradient(135deg, #f3f4f6, #eaecf0); }#tab-a-receber .emp-hdr.disabled{ cursor: default; opacity: 0.5; }#tab-a-receber .emp-hdr.disabled:hover{ background: linear-gradient(135deg, #f9fafb, #f3f4f6); }#tab-a-receber .empr-hdr.disabled{ cursor: default; opacity: 0.5; }#tab-a-receber .empr-hdr.disabled:hover{ background: #fafafa; }#tab-a-receber .emp-lbl{ font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }#tab-a-receber .empr-row{ border-top: 1px solid #f0f0f0; }#tab-a-receber .empr-hdr{ background: #fafafa; padding: 9px 16px 9px 50px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-left: 4px solid #a8c8e8; }#tab-a-receber .empr-hdr:hover{ background: #f5f5f5; }#tab-a-receber .empr-lbl{ font-size: 12px; font-weight: 600; color: #444; display: flex; align-items: center; gap: 8px; }#tab-a-receber .ap-row{ border-top: 1px solid #f5f5f5; background: white; padding: 7px 16px 7px 70px; display: flex; align-items: center; gap: 8px; }#tab-a-receber .ap-cod{ font-family: monospace; font-size: 10px; font-weight: 700; color: #1B5BA4; min-width: 50px; }#tab-a-receber .ap-name{ flex: 1; font-size: 11px; color: #666; }#tab-a-receber .val-col{ min-width: 120px; text-align: right; }#tab-a-receber .val-head{ font-size: 8px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }#tab-a-receber .val-num{ font-size: 13px; font-weight: 700; }#tab-a-receber .val-zero{ color: #ccc; font-size: 12px; }#tab-a-receber .arrow{ display: inline-block; width: 14px; color: #1B5BA4; }#tab-a-receber .btn-clear{ padding: 0 14px; height: 38px; border: 2px solid #e0e0e0; border-radius: 6px; background: white; cursor: pointer; font-size: 12px; font-weight: 600; color: #666; transition: all 0.2s; white-space: nowrap; align-self: flex-end; }#tab-a-receber .btn-clear:hover{ border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }#tab-a-receber .btn-clear-week{ padding: 5px 13px; border: 2px solid #1B5BA4; border-radius: 5px; background: rgba(0,0,0,0.15); cursor: pointer; font-size: 12px; font-weight: 700; color: #999; transition: all 0.2s; letter-spacing: 0.3px; }#tab-a-receber .btn-clear-week:hover{ border-color: #e74c3c; color: #e74c3c; background: rgba(231,76,60,0.12); }#tab-a-receber .charts-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; align-items: start; }#tab-a-receber .chart-card{ background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; }#tab-a-receber .chart-card:hover{ box-shadow: 0 4px 12px rgba(27,91,164,0.1); }#tab-a-receber .chart-title{ font-size: 11px; font-weight: 700; color: #1B5BA4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }#tab-a-receber @media(max-width:900px){ .charts-row { grid-template-columns: 1fr; } }#tab-a-receber @media(max-width:768px){ .summary-grid { grid-template-columns: 1fr 1fr; }#tab-a-receber .top-filters{ flex-direction: column; }#tab-a-receber .filter-block{ max-width: 100%; } }#tab-a-receber @media(max-width:480px){ .summary-grid { grid-template-columns: 1fr; } }
+    
+
+        /* A RECEBER — animação de entrada disparada por JS (mesmo mecanismo das outras abas) */
+        </style>
 </head>
 <body>
 
@@ -899,11 +922,12 @@ window.smoothScrollTo = function(el){
                 <div class="resp">Responsável: Luiz Carlos Tenório Cavalcanti Filho</div>
             </div>
         </div>
-        <div class="version-info" id="versionDisplay">v.2.0</div>
+        <div class="version-info" id="versionDisplay">v.3.0</div>
     </div>
     <div class="subheader">
-        <button class="tab-btn active" onclick="switchTab('financeiro')" id="btn-financeiro">ACOMPANHAMENTO FINANCEIRO</button>
-        <button class="tab-btn" onclick="switchTab('contratos')" id="btn-contratos">GESTÃO DE CONTRATOS</button>
+        <button class="tab-btn active" onclick="switchTab('financeiro')" id="btn-financeiro">FINANCEIRO - PAGAR</button>
+        <button class="tab-btn" onclick="switchTab('a-receber')" id="btn-a-receber">FINANCEIRO - RECEBER</button>
+        <button class="tab-btn" onclick="switchTab('contratos')" id="btn-contratos">GESTÃO DOS CONTRATOS</button>
     </div>
 </header>
 
@@ -1363,6 +1387,552 @@ window.smoothScrollTo = function(el){
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(React.createElement(App));
+    </script>
+</div>
+
+<div id="tab-a-receber">
+    <div class="container">
+        <div id="root-areceber"></div>
+    </div>
+    <script>
+    (function(){
+
+const RAW = [{"ano": 2026, "mes": 6, "dia_ini": 1, "dia_fim": 5, "empresa": "MRDELTA", "empreendimento": "JARDINS DI CAPRI", "apropriacoes": {"1.01.01": 195289.17, "1.06.08": 582.94}, "total_geral": 195872.11}, {"ano": 2026, "mes": 6, "dia_ini": 1, "dia_fim": 5, "empresa": "MRDELTA", "empreendimento": "MONTALCCINO", "apropriacoes": {"1.01.01": 65109.04}, "total_geral": 65109.04}, {"ano": 2026, "mes": 6, "dia_ini": 8, "dia_fim": 12, "empresa": "MRDELTA", "empreendimento": "JARDINS DI CAPRI", "apropriacoes": {"1.01.01": 211637.35, "1.06.08": 693.64}, "total_geral": 212330.99}, {"ano": 2026, "mes": 6, "dia_ini": 8, "dia_fim": 12, "empresa": "MRDELTA", "empreendimento": "MONTALCCINO", "apropriacoes": {"1.01.01": 723935.54, "1.06.08": 2377.77}, "total_geral": 726313.31}, {"ano": 2026, "mes": 6, "dia_ini": 8, "dia_fim": 12, "empresa": "VIVA DELTA", "empreendimento": "VILA JARDIM", "apropriacoes": {"1.01.01": 63081.79, "1.06.08": 1110.25}, "total_geral": 64192.04}];
+
+const EMPRESAS = ["VIVA DELTA","MRDELTA"];
+const EMPR_MRDELTA = ["JARDINS DI CAPRI","MONTALCCINO","ALAMEDA BESSA","CIDADE JARDIM 01","MIRAGGIO","PARADISO"];
+const EMPR_VIVA = ["VILA JARDIM"];
+const APROPS = [
+  {cod:"1.01.01", nome:"Receita de Incorporação de Imóveis"},
+  {cod:"1.06.08", nome:"Rendimento de Crédito Habitacional"},
+  {cod:"1.01.02", nome:"Receita de Venda de Loteamento"}
+];
+const MESES_NM = {1:'Janeiro',2:'Fevereiro',3:'Março',4:'Abril',5:'Maio',6:'Junho',7:'Julho',8:'Agosto',9:'Setembro',10:'Outubro',11:'Novembro',12:'Dezembro'};
+
+const fmt = v => 'R$ ' + (v||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+
+function getPeriodKey(r){ return `${String(r.dia_ini).padStart(2,'0')}/${String(r.mes).padStart(2,'0')} a ${String(r.dia_fim).padStart(2,'0')}/${String(r.mes).padStart(2,'0')} (${r.ano})`; }
+function getPeriodLabel(r){ return `${String(r.dia_ini).padStart(2,'0')}/${String(r.mes).padStart(2,'0')} a ${String(r.dia_fim).padStart(2,'0')}/${String(r.mes).padStart(2,'0')} (seg a sex)`; }
+function getPeriodShort(r){ return `${String(r.dia_ini).padStart(2,'0')}/${String(r.mes).padStart(2,'0')} a ${String(r.dia_fim).padStart(2,'0')}/${String(r.mes).padStart(2,'0')}`; }
+
+/* Dropdown simples (radio) */
+function DropdownSingle({label, value, options, onChange}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef(null);
+  React.useEffect(()=>{
+    function handler(e){ if(ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', handler);
+    return ()=>document.removeEventListener('mousedown', handler);
+  },[]);
+  const selectedOpt = options.find(o=>o.value===value);
+  const displayText = selectedOpt ? selectedOpt.label : '— Selecione —';
+  return React.createElement('div', {className:'filter-block', ref},
+    React.createElement('label', null, label),
+    React.createElement('div', {className:`dd-trigger${open?' open':''}`, onClick:()=>setOpen(p=>!p)},
+      React.createElement('span', {className:'dd-text'}, displayText),
+      React.createElement('span', {className:'dd-arrow'}, '▼')
+    ),
+    open && React.createElement('div', {className:'dd-menu'},
+      options.map(opt=>
+        React.createElement('div', {
+          key: opt.value,
+          className:`dd-item${opt.value===value?' selected':''}`,
+          onClick:()=>{ onChange(opt.value); setOpen(false); }
+        },
+          React.createElement('span', {className:'radio'}),
+          opt.label
+        )
+      )
+    )
+  );
+}
+
+/* Dropdown multi-seleção */
+function DropdownMulti({label, values, options, onChange, disabled}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef(null);
+  React.useEffect(()=>{
+    function handler(e){ if(ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', handler);
+    return ()=>document.removeEventListener('mousedown', handler);
+  },[]);
+  const allSelected = values.length === options.length;
+  const displayText = values.length === 0
+    ? (options.length === 0 ? 'Nenhum período' : 'Todos os períodos')
+    : values.length === 1
+      ? options.find(o=>o.value===values[0])?.label || values[0]
+      : `${values.length} períodos selecionados`;
+  const toggle = (val) => {
+    if (values.includes(val)) onChange(values.filter(v=>v!==val));
+    else onChange([...values, val]);
+  };
+  return React.createElement('div', {className:'filter-block', ref, style:{opacity: disabled?0.5:1, pointerEvents: disabled?'none':'auto'}},
+    React.createElement('label', null, label),
+    React.createElement('div', {className:`dd-trigger${open?' open':''}`, onClick:()=>!disabled&&setOpen(p=>!p)},
+      React.createElement('span', {className:'dd-text'}, displayText),
+      React.createElement('span', {className:'dd-arrow'}, '▼')
+    ),
+    open && options.length > 0 && React.createElement('div', {className:'dd-menu'},
+      options.length > 1 && React.createElement('div', {
+        className:`dd-item${allSelected?' selected':''}`,
+        onClick:()=>onChange(allSelected?[]:[...options.map(o=>o.value)])
+      },
+        React.createElement('span', {className:'chk'}, allSelected?'✓':''),
+        React.createElement('strong', null, 'Todos')
+      ),
+      options.map(opt=>
+        React.createElement('div', {
+          key: opt.value,
+          className:`dd-item${values.includes(opt.value)?' selected':''}`,
+          onClick:()=>toggle(opt.value)
+        },
+          React.createElement('span', {className:'chk'}, values.includes(opt.value)?'✓':''),
+          opt.label
+        )
+      )
+    )
+  );
+}
+
+
+  /* ---- Gráfico Linha: Total Recebido por Mês ---- */
+  function LineChart({data}) {
+    const key = data.map(d=>d.label+'_'+d.total).join('|');
+    return React.createElement(LineChartInner, {key, data});
+  }
+  function LineChartInner({data}) {
+    const canvasRef = React.useRef(null);
+    React.useEffect(()=>{
+      if(!canvasRef.current || !window.Chart) return;
+      const canvas = canvasRef.current;
+      const tid = setTimeout(()=>{
+      const chart = new window.Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: data.map(d=>d.label),
+          datasets: [{
+            label: 'Recebido',
+            data: data.map(d=>d.total),
+            borderColor: '#1B5BA4',
+            backgroundColor: 'rgba(27,91,164,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#1B5BA4',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {display: false},
+            datalabels: {display: false},
+            tooltip: {
+              callbacks: {
+                label: ctx => ' R$ ' + ctx.parsed.y.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => 'R$ '+(v/1000).toFixed(0)+'k', font:{size:10} },
+              grid: {color:'rgba(0,0,0,0.05)'}
+            },
+            x: { ticks: {font:{size:10}}, grid: {display:false} }
+          }
+        }
+      });
+      return ()=>chart.destroy();
+      }, 30);
+      return ()=>{ clearTimeout(tid); };
+    },[]);
+    return React.createElement('canvas', {ref: canvasRef, height: 130});
+  }
+
+  /* ---- Gráfico Rosca: Recebido por Empreendimento ---- */
+  const PIZZA_COLORS = ['#1B5BA4','#27ae60','#e67e22','#8e44ad','#e74c3c','#16a085','#2980b9','#f39c12','#7f8c8d','#c0392b'];
+  function PieChart({data}) {
+    if(!data.length) return React.createElement('div',{style:{textAlign:'center',color:'#bbb',padding:'40px 0',fontSize:'12px'}},'Sem dados no período');
+    const key = data.map(d=>d.label+'_'+d.total).join('|');
+    return React.createElement(PieChartInner, {key, data});
+  }
+  function PieChartInner({data}) {
+    const canvasRef = React.useRef(null);
+    React.useEffect(()=>{
+      if(!canvasRef.current || !window.Chart) return;
+      // Plugin inline para rótulos na rosca
+      const labelPlugin = {
+        id: 'innerLabels',
+        afterDraw(chart) {
+          const {ctx, data: d} = chart;
+          const total = d.datasets[0].data.reduce((a,b)=>a+b,0);
+          const meta = chart.getDatasetMeta(0);
+          ctx.save();
+          meta.data.forEach((arc, i) => {
+            const val = d.datasets[0].data[i];
+            const pct = total>0?(val/total*100):0;
+            if(pct < 6) return;
+            const {x,y} = arc.tooltipPosition();
+            const label = 'R$ '+(val/1000).toFixed(0)+'k';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 9px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowBlur = 3;
+            ctx.fillText(label, x, y);
+          });
+          ctx.restore();
+        }
+      };
+      const chart = new window.Chart(canvasRef.current, {
+        type: 'pie',
+        data: {
+          labels: data.map(d=>d.label),
+          datasets: [{
+            data: data.map(d=>d.total),
+            backgroundColor: PIZZA_COLORS.slice(0,data.length),
+            borderWidth: 2,
+            borderColor: '#fff',
+            hoverOffset: 12
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: {display:false},
+            legend: {
+              position: 'right',
+              labels: {font:{size:9}, padding:4, boxWidth:9},
+              onHover(evt, item, legend) {
+                const c = legend.chart;
+                c.setActiveElements([{datasetIndex:0, index:item.index}]);
+                c.tooltip.setActiveElements([{datasetIndex:0, index:item.index}],{x:0,y:0});
+                c.update('none');
+              },
+              onLeave(evt, item, legend) {
+                const c = legend.chart;
+                c.setActiveElements([]);
+                c.tooltip.setActiveElements([]);
+                c.update('none');
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                  const pct = total>0?((ctx.parsed/total)*100).toFixed(1):0;
+                  const val = 'R$ '+ctx.parsed.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+                  return ` ${ctx.label}: ${val} (${pct}%)`;
+                }
+              }
+            }
+          },
+          cutout: 0
+        },
+        plugins: [labelPlugin]
+      });
+      return ()=>chart.destroy();
+    },[]);
+    return React.createElement('div', {style:{position:'relative', height:'260px', width:'100%'}}, React.createElement('canvas', {ref: canvasRef}));
+  }
+
+function App(){
+  const allMeses = [...new Set(RAW.map(r=>r.mes))].sort((a,b)=>a-b);
+  const [mes, setMes] = React.useState(allMeses[0]||null);
+  const [selectedPeriods, setSelectedPeriods] = React.useState([]);
+  const [filtEmpresa, setFiltEmpresa] = React.useState('');
+  const [filtEmpreend, setFiltEmpreend] = React.useState('');
+  React.useEffect(function(){
+    function onReset(){ setMes(allMeses[0]||null); setSelectedPeriods([]); setFiltEmpresa(''); setFiltEmpreend(''); }
+    document.addEventListener('resetAReceber', onReset);
+    return function(){ document.removeEventListener('resetAReceber', onReset); };
+  }, []);
+
+  const [expanded, setExpanded] = React.useState({});
+  const toggle = k => setExpanded(p=>({...p,[k]:!p[k]}));
+  const isOpen = k => !!expanded[k];
+
+  const mesFiltrado = mes || allMeses[0];
+
+  // Períodos do mês selecionado
+  const periodosMap = {};
+  RAW.filter(r=>r.mes===mesFiltrado).forEach(r=>{ const k=getPeriodKey(r); if(!periodosMap[k]) periodosMap[k]=r; });
+  const periodos = Object.values(periodosMap).sort((a,b)=>a.dia_ini-b.dia_ini);
+  const periodoOpts = periodos.map(r=>({value: getPeriodKey(r), label: getPeriodShort(r)}));
+
+  // Quando muda o mês, selecionar todos os períodos disponíveis
+  const prevMes = React.useRef(mesFiltrado);
+  React.useEffect(()=>{
+    if(prevMes.current !== mesFiltrado){
+      prevMes.current = mesFiltrado;
+      setSelectedPeriods(periodos.map(r=>getPeriodKey(r)));
+    }
+  });
+
+  // Se não há seleção ainda, selecionar tudo
+  const activePeriods = selectedPeriods.length > 0 
+    ? selectedPeriods.filter(k => periodoOpts.some(o=>o.value===k))
+    : periodos.map(r=>getPeriodKey(r));
+
+  // Dados com filtros completos
+  const dadosFiltrados = RAW.filter(r=>{
+    if(!activePeriods.includes(getPeriodKey(r))) return false;
+    if(filtEmpresa && r.empresa!==filtEmpresa) return false;
+    if(filtEmpreend && r.empreendimento!==filtEmpreend) return false;
+    return true;
+  });
+
+  // Dados dos períodos ativos SEM filtro empresa (para estrutura expansível)
+  const dadosPeriodo = RAW.filter(r=>activePeriods.includes(getPeriodKey(r)));
+
+  // Opções de filtro
+  const empOpts = [...new Set(dadosPeriodo.map(r=>r.empresa))].sort();
+  const empreOpts = [...new Set(dadosPeriodo.filter(r=>!filtEmpresa||r.empresa===filtEmpresa).map(r=>r.empreendimento))].sort();
+
+  // Totais resumo
+  const totalRec  = dadosFiltrados.reduce((s,r)=>s+r.total_geral,0);
+  const totalInc  = dadosFiltrados.reduce((s,r)=>s+(r.apropriacoes['1.01.01']||0),0);
+  const totalRend = dadosFiltrados.reduce((s,r)=>s+(r.apropriacoes['1.06.08']||0),0);
+  const totalLot  = dadosFiltrados.reduce((s,r)=>s+(r.apropriacoes['1.01.02']||0),0);
+
+  const ce = React.createElement;
+
+  function renderAprops(empresa, empreendimento, data){
+    const rec = data.find(r=>r.empresa===empresa&&r.empreendimento===empreendimento);
+    // Se múltiplos períodos, somar
+    const recs = data.filter(r=>r.empresa===empresa&&r.empreendimento===empreendimento);
+    return APROPS.map(ap=>{
+      const val = recs.reduce((s,r)=>s+(r.apropriacoes[ap.cod]||0),0);
+      return ce('div',{key:ap.cod,className:'ap-row'},
+        ce('span',{className:'ap-cod'},ap.cod),
+        ce('span',{className:'ap-name'},ap.nome),
+        ce('span',{className:'val-col'},
+          ce('div',{className:'val-head'},'RECEBIDO'),
+          ce('div',{className:val>0?'val-num':'val-zero'},fmt(val))
+        )
+      );
+    });
+  }
+
+  function renderEmpreendimentos(empresa, emprList, data){
+    return emprList.map(empr=>{
+      const key=`empr-${empresa}-${empr}`;
+      const open=isOpen(key);
+      const recs=data.filter(r=>r.empresa===empresa&&r.empreendimento===empr);
+      const total=recs.reduce((s,r)=>s+r.total_geral,0);
+      const hasEmpr = total > 0;
+      return ce('div',{key,className:'empr-row'},
+        ce('div',{className:`empr-hdr${hasEmpr?'':' disabled'}`,onClick:()=>hasEmpr&&toggle(key)},
+          ce('span',{className:'empr-lbl'},
+            hasEmpr&&ce('span',{className:'arrow'},open?'▼':'▶'),
+            !hasEmpr&&ce('span',{style:{width:'14px',display:'inline-block'}},''),
+            empr
+          ),
+          ce('span',{className:'val-col'},
+            ce('div',{className:'val-head'},'RECEBIDO'),
+            ce('div',{className:hasEmpr?'val-num':'val-zero'},fmt(total))
+          )
+        ),
+        open&&hasEmpr&&ce('div',null,...renderAprops(empresa,empr,data))
+      );
+    });
+  }
+
+  function renderEmpresas(data){
+    return EMPRESAS.map(emp=>{
+      const key=`emp-${emp}`;
+      const open=isOpen(key);
+      const total=data.filter(r=>r.empresa===emp).reduce((s,r)=>s+r.total_geral,0);
+      const emprList=emp==='MRDELTA'?EMPR_MRDELTA:EMPR_VIVA;
+      const hasEmp = total > 0;
+      return ce('div',{key,className:'emp-row'},
+        ce('div',{className:`emp-hdr${hasEmp?'':' disabled'}`,onClick:()=>hasEmp&&toggle(key)},
+          ce('span',{className:'emp-lbl'},
+            hasEmp&&ce('span',{className:'arrow'},open?'▼':'▶'),
+            !hasEmp&&ce('span',{style:{width:'14px',display:'inline-block'}},''),
+            emp
+          ),
+          ce('span',{className:'val-col'},
+            ce('div',{className:'val-head'},'RECEBIDO'),
+            ce('div',{className:hasEmp?'val-num':'val-zero'},fmt(total))
+          )
+        ),
+        open&&hasEmp&&emprList.length>0&&ce('div',null,...renderEmpreendimentos(emp,emprList,data)),
+        open&&hasEmp&&emprList.length===0&&ce('div',{style:{padding:'10px 16px 10px 50px',fontSize:'11px',color:'#bbb'}},'Sem empreendimentos cadastrados')
+      );
+    });
+  }
+
+  // Fechar todos os expansíveis de um período
+  function collapseWeek(pKey){
+    setExpanded(prev => {
+      const next = {...prev};
+      // Fechar o card da semana e todos empresa/empreendimento filhos
+      delete next[`semana-${pKey}`];
+      EMPRESAS.forEach(emp => {
+        delete next[`emp-${emp}`];
+        const emprList = emp==='MRDELTA'?EMPR_MRDELTA:EMPR_VIVA;
+        emprList.forEach(empr => { delete next[`empr-${emp}-${empr}`]; });
+      });
+      return next;
+    });
+  }
+
+  // Cada período ativo vira um card de semana
+  function renderSemanas(){
+    if(activePeriods.length===0||periodos.length===0)
+      return ce('div',{style:{color:'#999',padding:'20px',textAlign:'center'}},'Nenhum período selecionado.');
+    const periodosSelecionados = periodos.filter(r=>activePeriods.includes(getPeriodKey(r)));
+    return periodosSelecionados.map(pRec=>{
+      const pKey=getPeriodKey(pRec);
+      const label=getPeriodLabel(pRec);
+      const key=`semana-${pKey}`;
+      const open=isOpen(key);
+      const dataPeriodo=RAW.filter(r=>getPeriodKey(r)===pKey&&(!filtEmpresa||r.empresa===filtEmpresa)&&(!filtEmpreend||r.empreendimento===filtEmpreend));
+      const totalPeriodo=RAW.filter(r=>getPeriodKey(r)===pKey&&(!filtEmpresa||r.empresa===filtEmpresa)&&(!filtEmpreend||r.empreendimento===filtEmpreend));
+      const total=totalPeriodo.reduce((s,r)=>s+r.total_geral,0);
+      return ce('div',{key,className:'week-card'},
+        ce('div',{className:'week-hdr',onClick:()=>toggle(key)},
+          ce('span',{className:'week-lbl'},
+            ce('span',{className:'arrow'},open?'▼':'▶'),
+            label
+          ),
+          ce('span',{style:{display:'flex',alignItems:'center',gap:'10px'}},
+            open&&ce('button',{
+              className:'btn-clear-week',
+              onClick:e=>{ e.stopPropagation(); collapseWeek(pKey); }
+            },'✕ Limpar'),
+            ce('span',{className:'val-col'},
+              ce('div',{className:'val-head'},'RECEBIDO'),
+              ce('div',{className:'val-num'},fmt(total))
+            )
+          )
+        ),
+        open&&ce('div',null,...renderEmpresas(dataPeriodo))
+      );
+    });
+  }
+
+  // Dados gráfico linha: últimos 12 meses (filtro empresa + empreendimento)
+  const lineData = React.useMemo(()=>{
+    const mesesSet = [...new Set(RAW.map(r=>r.mes+'/'+r.ano))];
+    // Montar mapa mes/ano → total, filtrado por empresa e empreendimento
+    const mapaRaw = {};
+    RAW.filter(r=>{
+      if(filtEmpresa && r.empresa!==filtEmpresa) return false;
+      if(filtEmpreend && r.empreendimento!==filtEmpreend) return false;
+      return true;
+    }).forEach(r=>{
+      const k = r.mes+'/'+r.ano;
+      mapaRaw[k] = (mapaRaw[k]||0) + r.total_geral;
+    });
+    // Ordenar cronologicamente e pegar últimos 12
+    const sorted = Object.keys(mapaRaw).sort((a,b)=>{
+      const [ma,ya]= a.split('/').map(Number);
+      const [mb,yb]= b.split('/').map(Number);
+      return ya!==yb ? ya-yb : ma-mb;
+    }).slice(-12);
+    return sorted.map(k=>{
+      const [m,y]=k.split('/').map(Number);
+      return {label: (MESES_NM[m]||m)+'/'+String(y).slice(2), total: mapaRaw[k]};
+    });
+  }, [filtEmpresa, filtEmpreend]);
+
+  // Dados gráfico pizza: recebido por empreendimento (filtro mês + empresa)
+  const pieData = React.useMemo(()=>{
+    const mapaEmp = {};
+    RAW.filter(r=>{
+      if(r.mes !== mesFiltrado) return false;
+      if(filtEmpresa && r.empresa!==filtEmpresa) return false;
+      return true;
+    }).forEach(r=>{
+      mapaEmp[r.empreendimento] = (mapaEmp[r.empreendimento]||0) + r.total_geral;
+    });
+    return Object.entries(mapaEmp)
+      .filter(([,v])=>v>0)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([label,total])=>({label,total}));
+  }, [mesFiltrado, filtEmpresa]);
+
+  return ce('div',null,
+    // FILTROS
+    ce('div',{className:'filters-card'},
+      // Linha: Mês + Semanas
+      ce('div',{className:'top-filters'},
+        ce(DropdownSingle, {
+          label: 'MÊS',
+          value: mesFiltrado,
+          options: allMeses.map(m=>({value:m, label:MESES_NM[m]||m})),
+          onChange: m => { setMes(m); setSelectedPeriods([]); }
+        }),
+        ce(DropdownMulti, {
+          label: 'SEMANAS (SEGUNDA A SEXTA)',
+          values: activePeriods,
+          options: periodoOpts,
+          onChange: setSelectedPeriods,
+          disabled: periodoOpts.length === 0
+        }),
+        ce('button', {
+          className: 'btn-clear',
+          title: 'Limpar filtros de empresa e empreendimento',
+          onClick: () => { setFiltEmpresa(''); setFiltEmpreend(''); }
+        }, '✕ Limpar Filtros')
+      ),
+      // Linha: Empresa + Empreendimento
+      ce('div',{className:'sec-title'},'FILTROS'),
+      ce('div',{className:'filters-row'},
+        ce('div',{className:'filter-item'},
+          ce('label',null,'Empresa'),
+          ce('select',{value:filtEmpresa,onChange:e=>{setFiltEmpresa(e.target.value);setFiltEmpreend('');}},
+            ce('option',{value:''},'Todas'),
+            empOpts.map(e=>ce('option',{key:e,value:e},e))
+          )
+        ),
+        ce('div',{className:'filter-item'},
+          ce('label',null,'Empreendimento'),
+          ce('select',{value:filtEmpreend,onChange:e=>setFiltEmpreend(e.target.value)},
+            ce('option',{value:''},'Todos'),
+            empreOpts.map(e=>ce('option',{key:e,value:e},e))
+          )
+        )
+      )
+    ),
+
+    // RESUMO GERAL
+    ce('div',{className:'sec-title'},'RESUMO GERAL'),
+    ce('div',{className:'summary-grid'},
+      ce('div',{className:'summary-card'},ce('div',{className:'s-label'},'RECEBIDO'),ce('div',{className:'s-value',style:{color:'#1B5BA4'}},fmt(totalRec))),
+      ce('div',{className:'summary-card'},ce('div',{className:'s-label'},'RECEITA DE INCORPORAÇÃO DE IMÓVEIS'),ce('div',{className:'s-value',style:{color:'#27ae60'}},fmt(totalInc))),
+      ce('div',{className:'summary-card'},ce('div',{className:'s-label'},'RENDIMENTO DE CRÉDITO HABITACIONAL'),ce('div',{className:'s-value',style:{color:'#e67e22'}},fmt(totalRend))),
+      ce('div',{className:'summary-card'},ce('div',{className:'s-label'},'RECEITA DE VENDA DE LOTEAMENTO'),ce('div',{className:'s-value',style:{color:'#8e44ad'}},fmt(totalLot)))
+    ),
+
+    // GRÁFICOS
+    ce('div',{className:'charts-row'},
+      ce('div',{className:'chart-card'},
+        ce('div',{className:'chart-title'},'Total Recebido por Mês (últimos 12 meses)'),
+        ce(LineChart,{data:lineData})
+      ),
+      ce('div',{className:'chart-card'},
+        ce('div',{className:'chart-title'},`Recebido por Empreendimento — ${MESES_NM[mesFiltrado]||mesFiltrado}`),
+        ce(PieChart,{data:pieData})
+      )
+    ),
+
+    // SEMANAS DO MÊS
+    ce('div',{className:'sec-title'},'SEMANAS DO MÊS'),
+    ce('div',{className:'weeks-list'},renderSemanas())
+  );
+}
+
+window._mountAReceber = function(){ ReactDOM.createRoot(document.getElementById('root-areceber')).render(React.createElement(App)); };
+
+})();
     </script>
 </div>
 
@@ -2283,6 +2853,12 @@ var TAB_DATA = {
         prog: 'Programação: Seg-Ter-Qua-Sex (14h PGT) - Qui (16h PGT + Programação semanal)',
         version: 'v.2.11'
     },
+    'a-receber': {
+        title: 'FINANCEIRO - RECEBER',
+        data: 'Atualizado: 15/06/2026 às 13:42',
+        prog: 'Programação: Segundas-feiras às 18h',
+        version: 'v.1.2'
+    },
     contratos: {
         title: 'GESTÃO DOS CONTRATOS',
         data: 'Atualizado: 12/06/2026 às 17:10',
@@ -2291,8 +2867,22 @@ var TAB_DATA = {
     }
 };
 var _contratosInited = false;
+    var _aReceberInited = false;
+function animateAReceberEntrance() {
+    var tab = document.getElementById('tab-a-receber');
+    if (!tab) return;
+    var blocks = Array.prototype.slice.call(
+        tab.querySelectorAll('.summary-card, .chart-card, .week-card')
+    );
+    blocks.forEach(function(el, i){
+        el.classList.remove('anim-in');
+        void el.offsetWidth; // força reflow por elemento
+        el.style.animationDelay = (i * 0.05) + 's';
+        el.classList.add('anim-in');
+    });
+}
 function resetDashboard() {
-    var active = document.querySelector('#tab-financeiro.active') ? 'financeiro' : 'contratos';
+    var active = document.querySelector('#tab-financeiro.active') ? 'financeiro' : document.querySelector('#tab-a-receber.active') ? 'a-receber' : 'contratos';
     if (active === 'contratos') {
         ['empreendimentoFilter','anoFilter','mesFilter'].forEach(function(id){
             var el = document.getElementById(id); if (el) el.value = '';
@@ -2300,6 +2890,8 @@ function resetDashboard() {
         if (typeof updateDashboard === 'function') updateDashboard();
         var tab = document.getElementById('tab-contratos');
         tab.querySelectorAll('.kpi-card-header.expanded,.kpi-expand-icon.expanded,.kpi-card-content.expanded,.kpi-detail-box.expanded,.kpi-detail-box-icon.expanded,.kpi-detail-box-content.expanded,.tree-content.expanded,.tree-icon.expanded,.chart-body.expanded,.chart-expand-icon.expanded').forEach(function(el){ el.classList.remove('expanded'); });
+    } else if (active === 'a-receber') {
+        document.dispatchEvent(new CustomEvent('resetAReceber'));
     } else {
         document.dispatchEvent(new CustomEvent('resetFinanceiro'));
     }
@@ -2308,7 +2900,7 @@ function resetDashboard() {
 function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-'+name).classList.add('active');
-    document.querySelectorAll('#tab-financeiro,#tab-contratos').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#tab-financeiro,#tab-a-receber,#tab-contratos').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-'+name).classList.add('active');
     var d = TAB_DATA[name];
     document.getElementById('infoTitle').textContent = d.title;
@@ -2316,6 +2908,9 @@ function switchTab(name) {
     document.getElementById('infoProg').textContent = d.prog;
     var iv = document.getElementById('infoVersion');
     if (iv) iv.textContent = d.version;
+    if (name === 'a-receber') {
+        if (!_aReceberInited) { _aReceberInited = true; setTimeout(function(){ window._mountAReceber && window._mountAReceber(); animateAReceberEntrance(); }, 80); } else { setTimeout(function(){ animateAReceberEntrance(); }, 30); }
+    }
     if (name === 'contratos') {
         if (!_contratosInited) { _contratosInited = true; setTimeout(function(){init();animateContratosEntrance();}, 30); }
         else { setTimeout(function(){renderStaticCharts();updateDashboard();animateContratosEntrance();}, 30); }
