@@ -36,8 +36,8 @@
         .info-bar .dash-meta{font-size:11px;color:#555}
         .info-bar .dash-prog{font-size:11px;color:#777;font-style:italic}
         .info-bar .dash-version{font-size:10px;font-weight:700;color:#1B5BA4;background:rgba(27,91,164,0.1);border:1px solid rgba(27,91,164,0.2);padding:2px 9px;border-radius:20px;letter-spacing:0.3px}
-        #tab-financeiro, #tab-a-receber, #tab-contratos, #tab-descontos {display:none}
-        #tab-financeiro.active, #tab-a-receber.active, #tab-contratos.active, #tab-descontos.active {display:block}
+        #tab-financeiro, #tab-a-receber, #tab-contratos, #tab-descontos, #tab-conciliacao {display:none}
+        #tab-financeiro.active, #tab-a-receber.active, #tab-contratos.active, #tab-descontos.active, #tab-conciliacao.active {display:block}
         
         #tab-financeiro *{ margin: 0; padding: 0; box-sizing: border-box; }
         html{ scroll-behavior: smooth; }
@@ -980,6 +980,96 @@
     animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) backwards;
 }
 </style>
+
+<style id="css-conciliacao">
+#tab-conciliacao * { margin: 0; padding: 0; box-sizing: border-box; }
+#tab-conciliacao { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; color: #333; }
+#tab-conciliacao .container { max-width: 1400px; margin: 0 auto; }
+#tab-conciliacao .header { background: linear-gradient(135deg, #1B5BA4 0%, #2B75B8 100%); color: white; padding: 20px; box-shadow: 0 4px 12px rgba(27,91,164,0.2); position: sticky; top: 0; z-index: 100; margin-bottom: 20px; border-radius: 0 0 8px 8px; }
+#tab-conciliacao .header-content { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+#tab-conciliacao .logo-text h1 { font-size: 20px; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; }
+#tab-conciliacao .logo-text p { font-size: 12px; opacity: 0.95; margin-top: 2px; color: white; }
+#tab-conciliacao .header-meta { font-size: 10px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+#tab-conciliacao .filters { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; align-items: end; }
+#tab-conciliacao .filter-group { display: flex; flex-direction: column; }
+#tab-conciliacao label { font-weight: 600; margin-bottom: 8px; color: #1e3a8a; font-size: 14px; }
+#tab-conciliacao select { padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; background: white; }
+#tab-conciliacao select:focus { outline: none; border-color: #1e3a8a; }
+#tab-conciliacao .btn-clear { padding: 10px 20px; background: #1e3a8a; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; height: 42px; }
+#tab-conciliacao .btn-clear:hover { background: #1B5BA4; }
+#tab-conciliacao .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 30px; }
+#tab-conciliacao .kpi-card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #1e3a8a; overflow: hidden; }
+#tab-conciliacao .kpi-card.verde { border-left-color: #059669; }
+#tab-conciliacao .kpi-card.amarelo { border-left-color: #f59e0b; }
+#tab-conciliacao .kpi-card.vermelho { border-left-color: #ef4444; }
+#tab-conciliacao .kpi-card.roxo { border-left-color: #8b5cf6; }
+#tab-conciliacao .kpi-card.teal { border-left-color: #14b8a6; }
+#tab-conciliacao .kpi-card-header { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s; }
+#tab-conciliacao .kpi-card-header:hover { background-color: #f9fafb; }
+#tab-conciliacao .kpi-card-header.expanded { background-color: #f0f9ff; }
+#tab-conciliacao .kpi-card-left { display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center; }
+#tab-conciliacao .kpi-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+#tab-conciliacao .kpi-value { font-size: 30px; font-weight: bold; color: #1e3a8a; }
+#tab-conciliacao .kpi-value.verde { color: #059669; }
+#tab-conciliacao .kpi-value.amarelo { color: #b45309; }
+#tab-conciliacao .kpi-value.vermelho { color: #dc2626; }
+#tab-conciliacao .kpi-expand-icon { font-size: 18px; color: #6b7280; transition: transform 0.3s; user-select: none; }
+#tab-conciliacao .kpi-expand-icon.expanded { transform: rotate(180deg); }
+#tab-conciliacao .kpi-card-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; border-top: 1px solid #e5e7eb; }
+#tab-conciliacao .kpi-card-content.expanded { max-height: 400px; transition: max-height 0.3s ease-in; }
+#tab-conciliacao .resumo-grid { display: flex; gap: 10px; flex-wrap: wrap; padding: 16px; }
+#tab-conciliacao .resumo-box { flex: 1; min-width: 90px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 8px; text-align: center; }
+#tab-conciliacao .resumo-box .resumo-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #6b7280; margin-bottom: 6px; font-weight: 700; line-height: 1.3; }
+#tab-conciliacao .resumo-box .resumo-value { font-size: 24px; font-weight: 700; color: #1f2937; }
+#tab-conciliacao .resumo-box.pend .resumo-label { color: #b45309; }
+#tab-conciliacao .resumo-box.pend .resumo-value { color: #b45309; }
+#tab-conciliacao .resumo-box.nok .resumo-label { color: #dc2626; }
+#tab-conciliacao .resumo-box.nok .resumo-value { color: #dc2626; }
+#tab-conciliacao .resumo-box.verde .resumo-value { color: #059669; }
+#tab-conciliacao .resumo-box.verde .resumo-label { color: #059669; }
+#tab-conciliacao .tree-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+#tab-conciliacao .section-title { font-size: 18px; font-weight: 600; color: #1e3a8a; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 3px solid #1e3a8a; }
+#tab-conciliacao .tree-node { margin-bottom: 6px; }
+#tab-conciliacao .tree-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 12px 14px; border-radius: 6px; transition: background-color 0.2s; user-select: none; }
+#tab-conciliacao .tree-header:hover { background-color: #f0f0f0; }
+#tab-conciliacao .tree-l1 > .tree-header { background: #eff6ff; border-left: 4px solid #1e3a8a; }
+#tab-conciliacao .tree-l1 > .tree-header .tree-title { font-size: 14px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.3px; }
+#tab-conciliacao .tree-title-wrapper { display: flex; gap: 10px; align-items: center; }
+#tab-conciliacao .tree-count { font-size: 11px; font-weight: 700; color: #6b7280; background: #e5e7eb; padding: 2px 9px; border-radius: 12px; }
+#tab-conciliacao .tree-count-pend { font-size: 11px; font-weight: 700; color: #b45309; background: #fef3c7; padding: 2px 9px; border-radius: 12px; }
+#tab-conciliacao .tree-icon { font-size: 13px; color: #6b7280; transition: transform 0.3s; user-select: none; }
+#tab-conciliacao .tree-icon.expanded { transform: rotate(180deg); }
+#tab-conciliacao .tree-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+#tab-conciliacao .tree-content.expanded { max-height: 5000px; transition: max-height 0.6s ease-in; }
+#tab-conciliacao .tree-table-wrapper { padding: 12px 0 8px 0; overflow-x: auto; }
+#tab-conciliacao table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#tab-conciliacao thead { background: #f9fafb; }
+#tab-conciliacao th { padding: 10px 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #e5e7eb; white-space: nowrap; }
+#tab-conciliacao td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+#tab-conciliacao tbody tr:hover { background: #f9fafb; }
+#tab-conciliacao .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+#tab-conciliacao .badge-ok { background: #dcfce7; color: #166534; }
+#tab-conciliacao .badge-pend { background: #fef3c7; color: #92400e; }
+#tab-conciliacao .badge-nok { background: #fee2e2; color: #991b1b; }
+#tab-conciliacao .comment-text { font-size: 11px; color: #6b7280; font-style: italic; max-width: 350px; line-height: 1.4; }
+#tab-conciliacao .no-data { color: #9ca3af; font-style: italic; text-align: center; padding: 20px; }
+#tab-conciliacao .valor-neg { color: #dc2626; }
+#tab-conciliacao footer { text-align: center; color: #9ca3af; font-size: 12px; margin-top: 30px; padding: 20px; }
+@media (max-width: 768px) {
+#tab-conciliacao .kpi-container { grid-template-columns: 1fr; }
+#tab-conciliacao th, #tab-conciliacao td { padding: 8px; }
+#tab-conciliacao table { font-size: 12px; }
+ 
+}
+
+    
+</style>
+<style>
+#tab-conciliacao .kpi-card.anim-in,
+#tab-conciliacao .resumo-box.anim-in,
+#tab-conciliacao .tree-section.anim-in {
+    animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) backwards;
+}</style>
 </head>
 <body>
 
@@ -1022,13 +1112,14 @@ window.smoothScrollTo = function(el){
                 <div class="resp">Responsável: Luiz Carlos Tenório Cavalcanti Filho</div>
             </div>
         </div>
-        <div class="version-info" id="versionDisplay">v.3.1</div>
+        <div class="version-info" id="versionDisplay">v.3.2</div>
     </div>
     <div class="subheader">
         <button class="tab-btn active" onclick="switchTab('financeiro')" id="btn-financeiro">FINANCEIRO - PAGAR</button>
         <button class="tab-btn" onclick="switchTab('a-receber')" id="btn-a-receber">FINANCEIRO - RECEBER</button>
         <button class="tab-btn" onclick="switchTab('contratos')" id="btn-contratos">GESTÃO DOS CONTRATOS</button>
             <button class="tab-btn" id="btn-descontos" onclick="switchTab('descontos')">DESCONTOS NAS UNIDADES</button>
+            <button class="tab-btn" id="btn-conciliacao" onclick="switchTab('conciliacao')">CONCILIAÇÃO</button>
     </div>
 </header>
 
@@ -1417,7 +1508,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.01.05",
                         "Nome Apropriação": "Projetos",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "PROJETO/CONSULTORIA"
+                        "Definição": "PROJETOS/CONSULTORIAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -1707,7 +1798,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.01.05",
                         "Nome Apropriação": "Projetos",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "PROJETO/CONSULTORIA"
+                        "Definição": "PROJETOS/CONSULTORIAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -5789,7 +5880,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -5965,7 +6056,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -6093,7 +6184,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -6157,7 +6248,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -6205,7 +6296,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.01.25",
                         "Nome Apropriação": "Bonificação",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -6221,7 +6312,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -6493,7 +6584,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.05.02",
                         "Nome Apropriação": "seguro - Máquinas",
                         "Conjunto": "OBRAS",
-                        "Definição": "DEMAIS DESPESAS OBRAS"
+                        "Definição": "DEMAIS DESPESAS OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -6605,7 +6696,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.01.25",
                         "Nome Apropriação": "Bonificação",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -6701,7 +6792,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -7469,7 +7560,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.12.02",
                         "Nome Apropriação": "Distribuição de Lucro",
                         "Conjunto": "DISTRIBUIÇÃO DE LUCRO",
-                        "Definição": "DISTRIBUICAO DE LUCRO"
+                        "Definição": "DISTRIBUIÇÃO DE LUCRO"
                 },
                 {
                         "Tipo": "Programado",
@@ -8573,7 +8664,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -8781,7 +8872,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -8797,7 +8888,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "1.01.99",
                         "Nome Apropriação": "(-) Anulação de Venda (resc contrato)",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -9101,7 +9192,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -9581,7 +9672,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -9773,7 +9864,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -10284,8 +10375,8 @@ window.smoothScrollTo = function(el){
                         "Observações": "A Pagar",
                         "Código Apropriação": "2.02.01.13",
                         "Nome Apropriação": "Evolução de obra",
-                        "Conjunto": "EVOLUCAO DE OBRA",
-                        "Definição": "EVOLUCAO DE OBRA"
+                        "Conjunto": "EVOLUÇÃO DE OBRA",
+                        "Definição": "EVOLUÇÃO DE OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -10476,8 +10567,8 @@ window.smoothScrollTo = function(el){
                         "Observações": "A Pagar",
                         "Código Apropriação": "2.02.01.13",
                         "Nome Apropriação": "Evolução de obra",
-                        "Conjunto": "EVOLUCAO DE OBRA",
-                        "Definição": "EVOLUCAO DE OBRA"
+                        "Conjunto": "EVOLUÇÃO DE OBRA",
+                        "Definição": "EVOLUÇÃO DE OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -10492,8 +10583,8 @@ window.smoothScrollTo = function(el){
                         "Observações": "A Pagar",
                         "Código Apropriação": "2.02.01.16",
                         "Nome Apropriação": "Evolução de Obra (FIADOR)",
-                        "Conjunto": "EVOLUCAO DE OBRA",
-                        "Definição": "EVOLUCAO DE OBRA"
+                        "Conjunto": "EVOLUÇÃO DE OBRA",
+                        "Definição": "EVOLUÇÃO DE OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -10828,8 +10919,8 @@ window.smoothScrollTo = function(el){
                         "Observações": "A Pagar",
                         "Código Apropriação": "2.02.01.13",
                         "Nome Apropriação": "Evolução de obra",
-                        "Conjunto": "EVOLUCAO DE OBRA",
-                        "Definição": "EVOLUCAO DE OBRA"
+                        "Conjunto": "EVOLUÇÃO DE OBRA",
+                        "Definição": "EVOLUÇÃO DE OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -11727,7 +11818,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.08",
                         "Nome Apropriação": "Taxas Bancárias",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "Despesas Administrativas"
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -11935,7 +12026,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.01.05",
                         "Nome Apropriação": "Projetos",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "PROJETO/CONSULTORIA"
+                        "Definição": "PROJETOS/CONSULTORIAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -12287,7 +12378,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -12303,7 +12394,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -12319,7 +12410,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.01.05",
                         "Nome Apropriação": "Projetos",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "PROJETO/CONSULTORIA"
+                        "Definição": "PROJETOS/CONSULTORIAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -12815,7 +12906,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.01.16",
                         "Nome Apropriação": "Evolução de Obra (FIADOR)",
                         "Conjunto": "EVOLUÇÃO DE OBRA",
-                        "Definição": "Evolução de Obra"
+                        "Definição": "EVOLUÇÃO DE OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -13007,7 +13098,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.08",
                         "Nome Apropriação": "Taxas Bancárias",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "Despesas Administrativas"
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -13087,7 +13178,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.08",
                         "Nome Apropriação": "Taxas Bancárias",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "Despesas Administrativas"
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -13375,7 +13466,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -13391,7 +13482,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -13855,7 +13946,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.08",
                         "Nome Apropriação": "Taxas Bancárias",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "Despesas Administrativas"
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -13919,7 +14010,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -14127,7 +14218,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -14543,7 +14634,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15087,7 +15178,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15103,7 +15194,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15439,7 +15530,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15455,7 +15546,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15551,7 +15642,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15743,7 +15834,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15871,7 +15962,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15967,7 +16058,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -15983,7 +16074,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.01.25",
                         "Nome Apropriação": "Bonificação",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -16047,7 +16138,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -16063,7 +16154,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -16079,7 +16170,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -16351,7 +16442,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.05.02",
                         "Nome Apropriação": "seguro - Máquinas",
                         "Conjunto": "OBRAS",
-                        "Definição": "DEMAIS DESPESAS OBRAS"
+                        "Definição": "DEMAIS DESPESAS OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -16447,7 +16538,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.01.25",
                         "Nome Apropriação": "Bonificação",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -16591,7 +16682,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.19",
                         "Nome Apropriação": "Propaganda  e Publicidade",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -17023,7 +17114,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.01.02.05",
                         "Nome Apropriação": "Pagamento Comissões de Venda",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -17087,7 +17178,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -17471,7 +17562,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.12.02",
                         "Nome Apropriação": "Distribuição de Lucro",
                         "Conjunto": "DISTRIBUIÇÃO DE LUCRO",
-                        "Definição": "DISTRIBUICAO DE LUCRO"
+                        "Definição": "DISTRIBUIÇÃO DE LUCRO"
                 },
                 {
                         "Tipo": "Programado",
@@ -17807,7 +17898,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.02.02.03",
                         "Nome Apropriação": "Anuidades",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "Despesas Administrativas"
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -17919,7 +18010,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.23",
                         "Nome Apropriação": "Empréstimo - Empresa não sócia",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "Despesas Administrativas"
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
                 },
                 {
                         "Tipo": "Programado",
@@ -18398,8 +18489,8 @@ window.smoothScrollTo = function(el){
                         "Observações": "Pago",
                         "Código Apropriação": "2.02.01.13",
                         "Nome Apropriação": "Evolução de obra",
-                        "Conjunto": "EVOLUCAO DE OBRA",
-                        "Definição": "EVOLUCAO DE OBRA"
+                        "Conjunto": "EVOLUÇÃO DE OBRA",
+                        "Definição": "EVOLUÇÃO DE OBRA"
                 },
                 {
                         "Tipo": "Programado",
@@ -18751,7 +18842,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.15",
                         "Nome Apropriação": "Taxa a Vista",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -18767,7 +18858,7 @@ window.smoothScrollTo = function(el){
                         "Código Apropriação": "2.03.16",
                         "Nome Apropriação": "Taxa de Registro CEF",
                         "Conjunto": "ADM COMERCIAL",
-                        "Definição": "COMISSOES/TAXAS/MARKETING"
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
                 },
                 {
                         "Tipo": "Programado",
@@ -19024,6 +19115,438 @@ window.smoothScrollTo = function(el){
                         "Nome Apropriação": "Taxas Bancárias",
                         "Conjunto": "ADM COMERCIAL",
                         "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "ALAMEDA BESSA",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 1000.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.49",
+                        "Nome Apropriação": "MÓVEIS",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "JARDINS DI CAPRI",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 42.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.15",
+                        "Nome Apropriação": "Limpeza",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "JARDINS DI CAPRI",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 185.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.31",
+                        "Nome Apropriação": "Ferramentas",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "JARDINS DI CAPRI",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 178.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.50",
+                        "Nome Apropriação": "Insumos",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "JARDINS DI CAPRI",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 12.6,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.08",
+                        "Nome Apropriação": "Taxas Bancárias",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "MONTALCCINO",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 6193.72,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.02.02.11",
+                        "Nome Apropriação": "Seguros",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "MONTALCCINO",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 143.43,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.02.02.12",
+                        "Nome Apropriação": "Cartórios e Registros",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "MONTALCCINO",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 27410.25,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.02",
+                        "Nome Apropriação": "Amortização Empréstimo PJ",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "MONTALCCINO",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 2.5,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.08",
+                        "Nome Apropriação": "Taxas Bancárias",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "MONTALCCINO",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 91.11,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.15",
+                        "Nome Apropriação": "Taxa a Vista",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "MRDELTA",
+                        "Empreendimento": "MONTALCCINO",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 1500.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.16",
+                        "Nome Apropriação": "Taxa de Registro CEF",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "COMISSÕES/TAXAS/MARKETING"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 2427.05,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.02.02",
+                        "Nome Apropriação": "Verbas Rescisões Trabalhistas",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DESP PESSOAL OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 5020.25,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.02.04",
+                        "Nome Apropriação": "Despesas com Alimentação",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DESP PESSOAL OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 653.8,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.02.25",
+                        "Nome Apropriação": "FGTS - Rescisório",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DESP PESSOAL OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 2975.25,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.02",
+                        "Nome Apropriação": "Agregados",
+                        "Conjunto": "OBRAS",
+                        "Definição": "CONCRETO ARMADO"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 696.9,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.11",
+                        "Nome Apropriação": "Hidráulico e Sanitário",
+                        "Conjunto": "OBRAS",
+                        "Definição": "HIDROSANITARIO-ELETRICO"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 58781.76,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.18",
+                        "Nome Apropriação": "Pintura",
+                        "Conjunto": "OBRAS",
+                        "Definição": "PISOS-REVESTIMENTO-PINTURA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 7480.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.29",
+                        "Nome Apropriação": "Material Segurança",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 2414.0,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.31",
+                        "Nome Apropriação": "Ferramentas",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 1750.08,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.42",
+                        "Nome Apropriação": "Lâmpadas, Luminárias e Lanternas",
+                        "Conjunto": "OBRAS",
+                        "Definição": "HIDROSANITARIO-ELETRICO"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 1400.45,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.45",
+                        "Nome Apropriação": "Materiais de fixação",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 36.67,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.01.04.50",
+                        "Nome Apropriação": "Insumos",
+                        "Conjunto": "OBRAS",
+                        "Definição": "DEMAIS DESPESAS OBRA"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 175411.83,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.02.01.11",
+                        "Nome Apropriação": "Encargos Sociais FGTS",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "PESSOAL ADMINISTRATIVO"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 491.64,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.02.02.16",
+                        "Nome Apropriação": "Material de Expediente",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 130407.56,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.02",
+                        "Nome Apropriação": "Amortização Empréstimo PJ",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 31.1,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.03.08",
+                        "Nome Apropriação": "Taxas Bancárias",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "DESPESAS ADMINISTRATIVAS"
+                },
+                {
+                        "Tipo": "Programado",
+                        "Data": "18/06/2026",
+                        "Dia da Semana": "Quinta",
+                        "Empresa": "VIVA DELTA",
+                        "Empreendimento": "VILA JARDIM",
+                        "Ano": 2026,
+                        "Mês": 6,
+                        "Período": 18,
+                        "Apropriação Financeira": 171817.73,
+                        "Observações": "Pago",
+                        "Código Apropriação": "2.04.13",
+                        "Nome Apropriação": "RET - Afetação",
+                        "Conjunto": "ADM COMERCIAL",
+                        "Definição": "IMPOSTOS"
                 }
         ]
 }
@@ -20927,7 +21450,7 @@ window._mountAReceber = function(){ ReactDOM.createRoot(document.getElementById(
 var TAB_DATA = {
     financeiro: {
         title: 'FINANCEIRO - PAGAR',
-        data: 'Atualizado: 18/06/2026 às 15:41',
+        data: 'Atualizado: 19/06/2026 às 11:54',
         prog: 'Programação: Seg-Ter-Qua-Sex (14h PGT) - Qui (16h PGT + Programação semanal)',
         version: 'v.2.11'
     },
@@ -20948,11 +21471,33 @@ var TAB_DATA = {
         data: 'Atualizado: 16/06/2026',
         prog: 'Programação: Segundas-feiras às 18h',
         version: 'v.1.0'
+    },
+    conciliacao: {
+        title: 'CONCILIAÇÃO',
+        data: 'Atualizado: 19/06/2026 às 12:20',
+        prog: 'Programação: Diariamente às 18h',
+        version: 'v.1.1'
     }
 };
 var _contratosInited = false;
     var _aReceberInited = false;
     var _descontosInited  = false;
+    var _conciliacaoInited = false;
+
+        
+        function animateConciliacaoEntrance() {
+            var tab = document.getElementById('tab-conciliacao');
+            if (!tab) return;
+            var blocks = Array.prototype.slice.call(
+                tab.querySelectorAll('.kpi-card, .resumo-box, .tree-section')
+            );
+            blocks.forEach(function(el, i) {
+                el.classList.remove('anim-in');
+                void el.offsetWidth;
+                el.style.animationDelay = (i * 0.05) + 's';
+                el.classList.add('anim-in');
+            });
+        }
 
         function animateDescontosEntrance() {
             var tab = document.getElementById('tab-descontos');
@@ -20990,6 +21535,9 @@ function resetDashboard() {
         if (typeof updateDashboard === 'function') updateDashboard();
         var tab = document.getElementById('tab-contratos');
         tab.querySelectorAll('.kpi-card-header.expanded,.kpi-expand-icon.expanded,.kpi-card-content.expanded,.kpi-detail-box.expanded,.kpi-detail-box-icon.expanded,.kpi-detail-box-content.expanded,.tree-content.expanded,.tree-icon.expanded,.chart-body.expanded,.chart-expand-icon.expanded').forEach(function(el){ el.classList.remove('expanded'); });
+    } else if (active === 'conciliacao') {
+        ['filtroEmpresa_conc','filtroAno_conc','filtroMes_conc','filtroDia_conc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+        window._renderConciliacao && window._renderConciliacao();
     } else if (active === 'descontos') {
         document.dispatchEvent(new CustomEvent('resetDescontos'));
     } else if (active === 'a-receber') {
@@ -21002,7 +21550,7 @@ function resetDashboard() {
 function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-'+name).classList.add('active');
-    document.querySelectorAll('#tab-financeiro,#tab-a-receber,#tab-contratos,#tab-descontos').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#tab-financeiro,#tab-a-receber,#tab-contratos,#tab-descontos,#tab-conciliacao').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-'+name).classList.add('active');
     var d = TAB_DATA[name];
     document.getElementById('infoTitle').textContent = d.title;
@@ -21020,6 +21568,21 @@ function switchTab(name) {
     if (name === 'descontos') {
         if (!_descontosInited) { _descontosInited = true; setTimeout(function(){ window._mountDescontos && window._mountDescontos(); animateDescontosEntrance(); }, 80); } else { setTimeout(function(){ animateDescontosEntrance(); }, 30); }
     }
+
+        if (name === 'conciliacao') {
+            if (!_conciliacaoInited) {
+                _conciliacaoInited = true;
+                setTimeout(function() {
+                    window._renderConciliacao && window._renderConciliacao();
+                    animateConciliacaoEntrance();
+                }, 30);
+            } else {
+                setTimeout(function() {
+                    window._renderConciliacao && window._renderConciliacao();
+                    animateConciliacaoEntrance();
+                }, 30);
+            }
+        }
     window.scrollTo({top:0,behavior:'smooth'});
 }
 switchTab('financeiro');
@@ -21643,6 +22206,316 @@ document.addEventListener('resetDescontos', function() {
     if (window._descontosResetFn) window._descontosResetFn();
 });
 window._mountDescontos = function(){ ReactDOM.createRoot(document.getElementById("root-descontos")).render(React.createElement(App)); };
+
+})();
+</script>
+
+<!-- ══════════════ ABA: CONCILIAÇÃO ══════════════ -->
+<div id="tab-conciliacao">
+<div class="container">
+        <div class="filters">
+        <div class="filter-group">
+            <label for="filtroEmpresa">Empresa:</label>
+            <select id="filtroEmpresa_conc" onchange="aplicarFiltros()">
+                <option value="">Todas as empresas</option>
+                <option value="VIVA DELTA">VIVA DELTA</option>
+                <option value="MRDELTA">MRDELTA</option>
+                <option value="DELTA">DELTA</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="filtroAno">Ano:</label>
+            <select id="filtroAno_conc" onchange="aplicarFiltros()">
+                <option value="">Todos os anos</option>
+                <option value="2026">2026</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="filtroMes">Mês:</label>
+            <select id="filtroMes_conc" onchange="aplicarFiltros()">
+                <option value="">Todos os meses</option>
+                <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+                <option value="03">Março</option><option value="04">Abril</option>
+                <option value="05">Maio</option><option value="06">Junho</option>
+                <option value="07">Julho</option><option value="08">Agosto</option>
+                <option value="09">Setembro</option><option value="10">Outubro</option>
+                <option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="filtroDia">Dia:</label>
+            <select id="filtroDia_conc" onchange="aplicarFiltros()">
+                <option value="">Todos os dias</option>
+                <option value="18">18</option>
+                </select>
+        </div>
+        <div class="filter-group">
+            <button class="btn-clear" onclick="window._limparConciliacao()">Limpar Filtros</button>
+        </div>
+    </div>
+
+    <div class="kpi-container" id="kpiLinha1_conc"></div>
+    <div class="kpi-container" id="kpiLinha2_conc"></div>
+    <div id="secaoVivaDelta_conc" class="tree-section"></div>
+    <div id="secaoMrDelta_conc" class="tree-section"></div>
+    <div id="secaoDelta_conc" class="tree-section"></div>
+
+    <footer>Dashboard Conciliação Bancária — Grupo Delta &nbsp;|&nbsp; Gerado em 19/06/2026 &nbsp;|&nbsp; v1.1</footer>
+</div>
+</div>
+
+
+<script>
+(function() {
+
+const RELATORIOS = [
+  {
+    arquivo: '2026_06_18_MRDELTA.xlsx', empresa: 'MRDELTA',
+    ano: '2026', mes: '06', dia: '18',
+    data_relatorio: '18/06/2026',
+    contas: [
+      { nome: '577508265-2 - 577508.265-2 CEF CTA PRINCIPAL', saldo: 190269.44, nao_conc: 0 },
+      { nome: '4745-7 - BRADESCO - CTA PRINCIPAL MOVIMENTO', saldo: 610713.8, nao_conc: 0 },
+      { nome: '5743500149-9 - CEF - CAPRI MOD 1', saldo: 19588.21, nao_conc: 0 },
+      { nome: '693-1 - 574349693-1 - CEF - MONTALCCINO MOD II', saldo: 57240.25, nao_conc: 0 },
+      { nome: '000574349634-6 - 574349634-6 - CEF - MONTALCCINO MOD I', saldo: 7847.15, nao_conc: 0 }
+    ]
+  },
+  {
+    arquivo: '2026_06_18_VIVA DELTA.xlsx', empresa: 'VIVA DELTA',
+    ano: '2026', mes: '06', dia: '18',
+    data_relatorio: '18/06/2026',
+    contas: [
+      { nome: '126-1 - 575523126-1 - CEF  ( VJ 07 - MOD II )', saldo: 19796.32, nao_conc: 0 },
+      { nome: '232-2 - 575523232-2 - CEF - ( VJ 07 - MOD I )', saldo: 25865.44, nao_conc: 0 },
+      { nome: '301-2 - 577508.301-2 - CEF - (VJ 6 - MOD I)', saldo: 0.0, nao_conc: 0 },
+      { nome: '302-0 - 577508.302-0 - CEF - (VJ 6 - MOD II)', saldo: 15439.59, nao_conc: 0 },
+      { nome: '397200-3 - BRADESCO - CTA PRINCIPAL -MOVIMENTO', saldo: 348574.91, nao_conc: 0 },
+      { nome: '4775-9 - BRADESCO ( VJ 07 ) - 4775-9', saldo: 455957.69, nao_conc: 0 },
+      { nome: '4777-5 - BRADESCO ( VJ 05 ) - 4777-5', saldo: 9339.77, nao_conc: 0 },
+      { nome: '4804-6 - BRADESCO ( VJ 06 ) - 4804-6', saldo: 175.63, nao_conc: 0 },
+      { nome: '51281-3 - SICREDI - CTA PRINCIPAL - MOVIMENTO', saldo: 30808.27, nao_conc: 0 },
+      { nome: '51281-3CG - SICREDI - CTA GARANTIDA', saldo: -0.49, nao_conc: 0 },
+      { nome: '512813 SICRE IC - SICREDI - INTEGRALIZAÇAO DE CAPITAL', saldo: 2800.0, nao_conc: 0 },
+      { nome: '5463-0 - BNB - PRINCIPAL-MOVIMENTO - VIVA DELTA', saldo: 0.0, nao_conc: 0 },
+      { nome: '5466-5 - BNB - CTA FUNDO DE LIQUIDEZ - VIVA DELTA', saldo: 87100.0, nao_conc: 0 },
+      { nome: '5467-3 - BNB - CTA TRANSITÓRIA - VIVA DELTA', saldo: 0.0, nao_conc: 0 },
+      { nome: '5515-8 - BRADESCO -  ( VJ 08 )', saldo: 192844.89, nao_conc: 0 },
+      { nome: 'CEF-TRINCHEIRA - 577610.669-5  (TRINCHEIRA)', saldo: 20000.0, nao_conc: 0 },
+      { nome: '5805-9 - 577569.567-0 (EPITÁCIO)', saldo: 21058.75, nao_conc: 0 },
+      { nome: '771-1 - 576266.771-1  (VJ 8 - MOD 2)', saldo: 7118.72, nao_conc: 0 },
+      { nome: '870-3 - 577508.207-5 (LIVRE MOVIMENTO)', saldo: 68743.63, nao_conc: 0 },
+      { nome: '923-8 - 577508.228-8 ( VJ 08 - MOD I )', saldo: 46558.95, nao_conc: 0 }
+    ]
+  }
+];
+
+const PENDENCIAS = [
+  { empresa: 'DELTA', conta_busca: 'SANTANDER', banco: 'SANTANDER', comentario: 'SALDO CONCILIADO ATÉ O DIA 17/05/2026 . APÓS ISSO ANGÉLICA PERDEU O ACESSO DO BANCO E VAI TENTAR RECUPERAR PARA EMISSÃO DOS EXTRATOS.' },
+  { empresa: 'DELTA', conta_busca: 'SAFRA', banco: 'SAFRA', comentario: 'CONTA CONCILIADA PORÉM EXISTEM VALORES “SOBRANDO” REF A RECEBIMENTO QUE PRECISAM SER CORRIGIDOS.  ‌  ESSEA VLORES JÁ FORAM PASSADOS PARA O SETOR CONTAS A RECEBER E ESTÁ SENDO FEITO AS CORREÇÕES.' }
+];
+
+function fmt(v) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+}
+
+function getPendencia(empresa, contaNome) {
+  return PENDENCIAS.find(function(p) {
+    return p.empresa === empresa && contaNome.toUpperCase().indexOf(p.conta_busca.toUpperCase()) >= 0;
+  });
+}
+
+function isConciliado(conta) { return conta.nao_conc === 0; }
+
+function getRelsFiltrados() {
+  var e = document.getElementById('filtroEmpresa_conc').value;
+  var a = document.getElementById('filtroAno_conc').value;
+  var m = document.getElementById('filtroMes_conc').value;
+  var d = document.getElementById('filtroDia_conc').value;
+  return RELATORIOS.filter(function(r) {
+    if (e && r.empresa !== e) return false;
+    if (a && r.ano !== a) return false;
+    if (m && r.mes !== m) return false;
+    if (d && r.dia !== d) return false;
+    return true;
+  });
+}
+
+function toggleKpiCard(header) {
+  header.classList.toggle('expanded');
+  var icon = header.querySelector('.kpi-expand-icon');
+  if (icon) icon.classList.toggle('expanded');
+  var content = header.closest('.kpi-card').querySelector('.kpi-card-content');
+  if (content) content.classList.toggle('expanded');
+}
+
+function toggleTree(header) {
+  var icon = header.querySelector('.tree-icon');
+  if (icon) icon.classList.toggle('expanded');
+  var content = header.closest('.tree-node').querySelector('.tree-content');
+  if (content) content.classList.toggle('expanded');
+}
+
+function renderKpiLinha1(rels) {
+  var totalContas = 0, saldoConciliado = 0, qtdComPend = 0, naoConc = 0;
+  rels.forEach(function(r) {
+    r.contas.forEach(function(c) {
+      totalContas++;
+      var pend = getPendencia(r.empresa, c.nome);
+      if (!isConciliado(c)) { naoConc++; }
+      else if (pend) { qtdComPend++; saldoConciliado += c.saldo; }
+      else { saldoConciliado += c.saldo; }
+    });
+  });
+  var cards = [
+    { label: 'TOTAL CONTAS BANC&Aacute;RIAS', disp: totalContas.toString(), cls: '', vcls: '' },
+    { label: 'SALDO CONCILIADO', disp: fmt(saldoConciliado), cls: 'verde', vcls: 'verde' },
+    { label: 'CONTAS COM PEND&Ecirc;NCIA', disp: qtdComPend.toString(), cls: 'amarelo', vcls: qtdComPend > 0 ? 'amarelo' : '' },
+    { label: 'CONTAS N&Atilde;O CONCILIADAS', disp: naoConc.toString(), cls: 'vermelho', vcls: naoConc > 0 ? 'vermelho' : '' }
+  ];
+  document.getElementById('kpiLinha1_conc').innerHTML = cards.map(function(c) {
+    var fs = c.disp.length > 14 ? '20px' : '30px';
+    return '<div class="kpi-card ' + c.cls + '">' +
+      '<div class="kpi-card-header" style="cursor:default;">' +
+      '<div class="kpi-card-left">' +
+      '<div class="kpi-label">' + c.label + '</div>' +
+      '<div class="kpi-value ' + c.vcls + '" style="font-size:' + fs + '">' + c.disp + '</div>' +
+      '</div></div></div>';
+  }).join('');
+}
+
+function calcEmpresa(rels, empresa) {
+  var rel = null;
+  for (var i = 0; i < rels.length; i++) { if (rels[i].empresa === empresa) { rel = rels[i]; break; } }
+  if (!rel) return { total: 0, semPend: 0, comPend: 0, naoConc: 0, saldoTotal: 0 };
+  var semPend = 0, comPend = 0, naoConc = 0, saldoTotal = 0;
+  rel.contas.forEach(function(c) {
+    var pend = getPendencia(empresa, c.nome);
+    if (!isConciliado(c)) { naoConc++; }
+    else if (pend) { comPend++; saldoTotal += c.saldo; }
+    else { semPend++; saldoTotal += c.saldo; }
+  });
+  return { total: rel.contas.length, semPend: semPend, comPend: comPend, naoConc: naoConc, saldoTotal: saldoTotal };
+}
+
+function renderKpiEmpresa(empresa, stats, cls) {
+  return '<div class="kpi-card ' + cls + '">' +
+    '<div class="kpi-card-header" style="cursor:default; flex-direction:column; gap:12px;">' +
+    '<div class="kpi-label" style="font-size:14px; font-weight:700; color:#1e3a8a; text-align:center; width:100%;">' + empresa + '</div>' +
+    '<div style="display:flex; gap:10px; width:100%;">' +
+      '<div class="resumo-box" style="flex:1; text-align:center;">' +
+        '<div class="resumo-label">TOTAL CONTAS</div>' +
+        '<div class="resumo-value">' + stats.total + '</div>' +
+      '</div>' +
+      '<div class="resumo-box verde" style="flex:2; text-align:center;">' +
+        '<div class="resumo-label">SALDO TOTAL CONCILIADO</div>' +
+        '<div class="resumo-value" style="font-size:18px;">' + fmt(stats.saldoTotal) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="resumo-grid" style="width:100%; margin:0; padding:0;">' +
+    '<div class="resumo-box"><div class="resumo-label">Conciliado<br>Sem Pend&ecirc;ncia</div><div class="resumo-value">' + stats.semPend + '</div></div>' +
+    '<div class="resumo-box pend"><div class="resumo-label">Conciliado<br>Com Pend&ecirc;ncia</div><div class="resumo-value">' + stats.comPend + '</div></div>' +
+    '<div class="resumo-box nok"><div class="resumo-label">N&atilde;o<br>Conciliadas</div><div class="resumo-value">' + stats.naoConc + '</div></div>' +
+    '</div>' +
+    '</div></div>';
+}
+
+function renderKpiLinha2(rels) {
+  var delta = calcEmpresa(rels, 'DELTA');
+  var viva  = calcEmpresa(rels, 'VIVA DELTA');
+  var mr    = calcEmpresa(rels, 'MRDELTA');
+  document.getElementById('kpiLinha2_conc').innerHTML =
+    renderKpiEmpresa('DELTA', delta, 'teal') +
+    renderKpiEmpresa('VIVA DELTA', viva, 'verde') +
+    renderKpiEmpresa('MRDELTA', mr, 'roxo');
+}
+
+function badgeStatus(empresa, conta) {
+  if (!isConciliado(conta)) return '<span class="badge badge-nok">N&Atilde;O CONCILIADO</span>';
+  return getPendencia(empresa, conta.nome)
+    ? '<span class="badge badge-pend">PEND&Ecirc;NCIA</span>'
+    : '<span class="badge badge-ok">OK</span>';
+}
+
+function renderSecaoEmpresa(containerId, empresa, rels) {
+  var rel = null;
+  for (var i = 0; i < rels.length; i++) { if (rels[i].empresa === empresa) { rel = rels[i]; break; } }
+  var pends = PENDENCIAS.filter(function(p) { return p.empresa === empresa; });
+  var totalContas = rel ? rel.contas.length : 0;
+  var comPend = 0;
+  if (rel) {
+    rel.contas.forEach(function(c) { if (getPendencia(empresa, c.nome)) comPend++; });
+  }
+  var deltaSemRel = !rel && pends.length > 0;
+  var totalDisp = totalContas + (deltaSemRel ? pends.length : 0);
+  var totalPend = comPend + (deltaSemRel ? pends.length : 0);
+
+  var countBadge = '<span class="tree-count">' + totalDisp + ' contas</span>';
+  var pendBadge = totalPend > 0 ? '<span class="tree-count-pend">' + totalPend + ' com pend&ecirc;ncia</span>' : '';
+
+  var tabelaHTML = '';
+  if (rel && rel.contas.length > 0) {
+    var rows = rel.contas.slice().sort(function(a, b) { return b.saldo - a.saldo; }).map(function(c) {
+      var pend = getPendencia(empresa, c.nome);
+      var saldoCls = c.saldo < 0 ? ' class="valor-neg"' : '';
+      return '<tr><td>' + c.nome + '</td>' +
+        '<td>' + rel.data_relatorio + '</td>' +
+        '<td' + saldoCls + '>' + fmt(c.saldo) + '</td>' +
+        '<td>' + badgeStatus(empresa, c) + '</td>' +
+        '<td class="comment-text">' + (pend ? pend.comentario : '&mdash;') + '</td></tr>';
+    }).join('');
+    tabelaHTML = '<div class="tree-table-wrapper"><table><thead><tr>' +
+      '<th>Conta Corrente</th><th>Data Relat&oacute;rio</th>' +
+      '<th>Saldo Conciliado</th><th>Status</th><th>Coment&aacute;rio</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  } else if (deltaSemRel) {
+    var rows2 = pends.map(function(p) {
+      return '<tr><td>' + p.banco + '</td><td>&mdash;</td><td>&mdash;</td>' +
+        '<td><span class="badge badge-pend">PEND&Ecirc;NCIA</span></td>' +
+        '<td class="comment-text">' + p.comentario + '</td></tr>';
+    }).join('');
+    tabelaHTML = '<div class="tree-table-wrapper"><table><thead><tr>' +
+      '<th>Banco</th><th>Data Relat&oacute;rio</th>' +
+      '<th>Saldo Conciliado</th><th>Status</th><th>Coment&aacute;rio</th>' +
+      '</tr></thead><tbody>' + rows2 + '</tbody></table></div>';
+  } else {
+    tabelaHTML = '<p class="no-data">Sem relat&oacute;rio dispon&iacute;vel para o per&iacute;odo selecionado.</p>';
+  }
+
+  document.getElementById(containerId).innerHTML =
+    '<div class="section-title">' + empresa + '</div>' +
+    '<div class="tree-node tree-l1">' +
+    '<div class="tree-header" onclick="toggleTree(this)">' +
+    '<div class="tree-title-wrapper">' +
+    '<span class="tree-title">CONTAS BANC&Aacute;RIAS</span>' +
+    countBadge + pendBadge +
+    '</div><span class="tree-icon">&#9660;</span></div>' +
+    '<div class="tree-content">' + tabelaHTML + '</div></div>';
+}
+
+function render() {
+  var rels = getRelsFiltrados();
+  renderKpiLinha1(rels);
+  renderKpiLinha2(rels);
+  renderSecaoEmpresa('secaoVivaDelta_conc', 'VIVA DELTA', rels);
+  renderSecaoEmpresa('secaoMrDelta_conc',   'MRDELTA',    rels);
+  renderSecaoEmpresa('secaoDelta_conc',     'DELTA',      rels);
+}
+
+function aplicarFiltros() { render(); }
+
+function limparFiltros() {
+  document.getElementById('filtroEmpresa_conc').value = '';
+  document.getElementById('filtroAno_conc').value = '';
+  document.getElementById('filtroMes_conc').value = '';
+  document.getElementById('filtroDia_conc').value = '';
+  render();
+}
+
+window._renderConciliacao = render;
+window._toggleKpiCard = toggleKpiCard;
+window._toggleTree = toggleTree;
+window._limparConciliacao = limparFiltros;
 
 })();
 </script>
