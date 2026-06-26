@@ -32,13 +32,12 @@
       style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;letter-spacing:1px;"
       onkeydown="if(event.key==='Enter')document.getElementById('gd-enter').click()">
     <div id="gd-err" style="font-size:12px;color:#f87171;min-height:18px;margin-bottom:8px;"></div>
-    <button id="gd-enter" onclick="(function(){var v=document.getElementById('gd-pwd').value;if(v==='deltabi'){sessionStorage.setItem('gd-auth','1');document.getElementById('gd-gate').style.display='none';}else{document.getElementById('gd-err').textContent='Senha incorreta. Tente novamente.';document.getElementById('gd-pwd').value='';document.getElementById('gd-pwd').focus();}})()"
+    <button id="gd-enter" onclick="(function(){var v=document.getElementById('gd-pwd').value;if(v==='deltabi'){document.getElementById('gd-gate').style.display='none';}else{document.getElementById('gd-err').textContent='Senha incorreta. Tente novamente.';document.getElementById('gd-pwd').value='';document.getElementById('gd-pwd').focus();}})()"
       style="width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#1B5BA4,#3b82f6);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(27,91,164,0.4);letter-spacing:0.3px;">
       Entrar
     </button>
   </div>
 </div>
-<script>if(sessionStorage.getItem('gd-auth')==='1'){document.getElementById('gd-gate').style.display='none';}</script>
 <!-- /PASSWORD GATE -->
 
   <div id="__bundler_thumbnail">
