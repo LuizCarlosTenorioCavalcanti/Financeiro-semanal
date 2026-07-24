@@ -1,0 +1,6 @@
+backup/
+backup versoes testes/
+skills_backup/
+_to_delete/
+scripts/__pycache__/
+*.zip

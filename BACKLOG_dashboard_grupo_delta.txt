@@ -1,0 +1,235 @@
+================================================================================
+  BACKLOG — DASHBOARD GRUPO DELTA CONSTRUTORA
+  Painel Financeiro Unificado | João Pessoa - PB
+  Responsável: Luiz Carlos Tenório Cavalcanti Filho
+================================================================================
+
+--------------------------------------------------------------------------------
+  v2.0 — LANÇAMENTO BETA (2 ABAS)
+  Base: dashboard_grupo_delta_v2.0.html
+--------------------------------------------------------------------------------
+  MÓDULOS
+    • FINANCEIRO - PAGAR    → Dashboard_Financeiro_v2.11.html    (React + Chart.js)
+    • GESTÃO DOS CONTRATOS  → dashboard_contratos_v2.1.html      (Vanilla JS + Chart.js v3.9.1)
+
+  FUNCIONALIDADES
+    • Header fixo com logo Grupo Delta + versão do arquivo unificado
+    • Subheader com botões de aba
+    • Info bar dinâmica: título | data de atualização | programação | versão da fonte
+    • CSS escopado por aba (#tab-financeiro, #tab-contratos) — sem conflito de estilos
+    • Chart.js v3.9.1 carregado 1x no <head> (compatível com ambas as abas)
+    • Lazy init do Contratos (Chart.js falha em canvas oculto)
+    • Animação de entrada (fadeUp) nos cards ao abrir cada aba
+    • resetDashboard() via clique no logo — reseta filtros da aba ativa
+    • Scripts React envoltos em IIFE para isolar variáveis globais
+
+  OBSERVAÇÕES TÉCNICAS
+    • React usa window.Chart (satisfeito pelo Chart.js v3.9.1 global)
+    • Contratos: DOMContentLoaded removido do script original; init() chamado
+      via switchTab() com flag _contratosInited
+    • Reflow (void el.offsetWidth) nos elementos com animação, nunca no pai
+
+
+--------------------------------------------------------------------------------
+  v3.0 — 3 ABAS (lançamento semana seguinte ao v2.0)
+  Base: dashboard_grupo_delta_v3.0.html
+--------------------------------------------------------------------------------
+  NOVO MÓDULO
+    + FINANCEIRO - RECEBER  → Dashboard_Financeiro_A_Receber_v1.2.html (React)
+
+  EVOLUÇÃO
+    • Terceira aba integrada com lazy init e animação própria
+    • Animação do A Receber corrigida: reflow nos .summary-card, .chart-card,
+      .week-card (não no .container pai — conteúdo React renderiza dentro de
+      #root-areceber)
+    • Renomeação das abas:
+        FINANCEIRO - A PAGAR  →  FINANCEIRO - PAGAR
+        FINANCEIRO - A RECEBER →  FINANCEIRO - RECEBER
+        GESTÃO DE CONTRATOS   →  GESTÃO DOS CONTRATOS
+    • TAB_DATA com datas e versões de cada fonte
+    • Flags: _contratosInited, _aReceberInited
+
+
+--------------------------------------------------------------------------------
+  v3.1 — 4 ABAS
+  Base: dashboard_grupo_delta_v3.1.html
+--------------------------------------------------------------------------------
+  NOVO MÓDULO
+    + DESCONTOS NAS UNIDADES → Dashboard_Descontos_v1.0.html (React 18 + createRoot)
+
+  EVOLUÇÃO
+    • 4ª aba com React 18 isolado em IIFE própria
+    • CSS escopado em #tab-descontos
+    • chartjs-plugin-datalabels carregado globalmente (necessário para gráficos
+      de descontos)
+    • Header duplicado removido da aba (artefato do arquivo fonte)
+    • Correção: _descontosInited declarado antes do uso em switchTab()
+    • Flag: _descontosInited
+
+
+--------------------------------------------------------------------------------
+  v3.2 — 5 ABAS | VERSÃO DE PRODUÇÃO ATUAL (à época)
+  Base: dashboard_grupo_delta_v3.2.html
+  index.txt → espelho para GitHub
+--------------------------------------------------------------------------------
+  NOVO MÓDULO
+    + CONCILIAÇÃO → Dashboard_Conciliacao_v1.1.html (Vanilla JS, lazy init)
+
+  EVOLUÇÃO
+    • 5ª aba: CONCILIAÇÃO com lazy init e animação de entrada
+    • IIFE isolada para Conciliação; funções globais expostas via:
+        window._renderConciliacao
+        window._toggleKpiCard
+        window._toggleTree
+        window._limparConciliacao
+    • IDs internos renomeados com sufixo _conc para evitar conflito:
+        secaoVivaDelta_conc, secaoMrDelta_conc, secaoDelta_conc
+        kpiLinha1_conc, kpiLinha2_conc
+        filtroEmpresa_conc, filtroAno_conc, filtroMes_conc, filtroDia_conc
+    • Correção: string literals nas chamadas renderSecaoEmpresa() atualizadas
+      para IDs com sufixo _conc (causa das seções de detalhe não carregarem)
+    • animateConciliacaoEntrance() com reflow nos .kpi-card, .resumo-box,
+      .tree-section
+    • Flag: _conciliacaoInited
+
+  FLUXO DE ATUALIZAÇÃO DE DADOS
+    Sempre transplantar variáveis dos arquivos-fonte, nunca recriar do zero:
+    • DATA, DIAS              ← Dashboard_Financeiro_v2.11.html
+    • RAW (occurrence=1)      ← Dashboard_Financeiro_A_Receber_v1.2.html
+    • dashboardData, extraInfo← dashboard_contratos_v2.1.html
+    • RAW (occurrence=2)      ← Dashboard_Descontos_v1.0.html
+    • RELATORIOS, PENDENCIAS  ← Dashboard_Conciliacao_v1.1.html
+
+  DATAS ATUAIS (Jun/2026, à época)
+    • Financeiro - Pagar    : 19/06/2026 às 11:54  (v.2.11)
+    • Financeiro - Receber  : 15/06/2026 às 13:42  (v.1.2)
+    • Gestão dos Contratos  : 20/06/2026, 06:23:19 (v.2.1)
+    • Descontos nas Unidades: 21/06/2026 às 11:59  (v.1.0)
+    • Conciliação           : 19/06/2026 às 12:20  (v.1.1)
+
+
+--------------------------------------------------------------------------------
+  v4.0 — NOVO SHELL VISUAL (não altera os dados — camada sobre o v3.2)
+  Base: dashboard_grupo_delta_v4.0.html
+--------------------------------------------------------------------------------
+  NOVO SHELL VISUAL
+    • Sidebar colapsável (248px → 68px com ícones + tooltips)
+    • Topbar com breadcrumb dinâmico e indicador "Ao vivo"
+    • Info bar abaixo do topbar: versão | data atualização | programação por aba
+    • Dashboard v3.2 embutido via gzip/base64 no __bundler/manifest
+    • srcdoc garante mesma origem → acesso JS completo (switchTab, resetDashboard)
+    • CSS override oculta header/info-bar originais dentro do iframe
+    • TAB_METAS no shell sincronizado com datas dos arquivos-fonte
+
+  ARQUITETURA BUNDLER
+    • __bundler/template  → HTML do shell (sidebar + topbar + info bar)
+    • __bundler/manifest  → Dashboard v3.2 comprimido (gzip + base64, ~127 KB)
+    • __bundler/ext_resources → fontes externas (Outfit)
+    • Funciona offline — arquivo único, sem dependências externas
+
+  STATUS
+    Promovido para produção. A partir daqui o shell do v4.0 virou a base
+    (dashboard_grupo_delta_v3.2.html deixou de ser editado diretamente).
+
+
+--------------------------------------------------------------------------------
+  v4.1 → v5.3 — (histórico não detalhado neste log)
+--------------------------------------------------------------------------------
+  Este backlog ficou sem atualização entre o v4.0 e o v5.3: o módulo
+  DESCONTOS foi descontinuado/removido da lista de abas, e os módulos
+  COMISSÃO e DAILY BRIEFING foram adicionados nesse intervalo. Não fabricar
+  detalhes de mudanças que não foram registradas aqui — se precisar do
+  histórico exato dessas versões, perguntar ao Luiz ou inspecionar backups
+  na pasta "backup versoes testes".
+
+
+--------------------------------------------------------------------------------
+  v5.4 — MÓDULO VENDAS (versão de produção atual, 8 abas)
+  Base: Dashboard Grupo Delta v5.4.html / index.txt
+--------------------------------------------------------------------------------
+  NOVO MÓDULO
+    + VENDAS → Dashboard_Vendas_v1.0.html (Vanilla JS + Chart.js, lazy init)
+      Última aba do sidebar. Ícone ⌂ (imóveis), cor #fb923c (laranja).
+      Programação: quintas-feiras às 10h.
+
+  O QUE O MÓDULO TRAZ
+    • Cards de Valor de Venda / Pago / A Pagar / Em Atraso — total e por
+      empresa (MRDELTA e Delta Voal)
+    • Cards de Total de Unidades / Em Dia / Em Atraso (com clique -> rola
+      até o painel "Unidades em Atraso" e pisca, igual aos outros módulos)
+    • Filtros de Empresa e Empreendimento com badge "N filtros ativos"
+    • Gráfico de linha (Total Pago por Mês) e coluna (Total a Pagar por Mês)
+    • Árvore expansível "Créditos nos Períodos" (mês > semana > dia)
+    • Painel "Falhas e Padrões Identificados" (avisos de dados)
+
+  INTEGRAÇÃO TÉCNICA
+    • CSS escopado em #tab-vendas; variáveis --blue-* locais REMOVIDAS do
+      módulo para herdar a paleta global e acompanhar troca de tema
+      (testado nos 3 temas — cards, filtros e gráficos mudam de cor certo)
+    • Chart.js próprio do arquivo-fonte (v4, embutido) foi DESCARTADO —
+      o módulo usa o Chart.js v3.9.1 já carregado globalmente no <head>
+      (mantém a regra técnica permanente #1 abaixo)
+    • datalabels:{display:false} adicionado nos gráficos do módulo porque
+      o Contratos já registra Chart.register(ChartDataLabels) globalmente
+
+  BUGS ENCONTRADOS E CORRIGIDOS NESTA INTEGRAÇÃO
+    1. Colisão de ids: Comissão e Vendas foram gerados a partir do mesmo
+       template e usavam os MESMOS ids (cardVendaTotal, fEmpresa, chartLinha,
+       treeRoot, btnLimpar etc. — 30 ids no total). getElementById sempre
+       pega o primeiro do documento, então o Vendas escrevia dentro dos
+       elementos ocultos do Comissão sem erro nenhum no console, e os
+       próprios cards do Vendas ficavam travados em "—". Corrigido
+       prefixando todos os ids do Vendas com "vnd".
+    2. A correção acima, feita por regex de id estático, não pegou os ids
+       montados por concatenação de string em JS (ex: 'cardVenda'+k) —
+       gerou TypeError (setting innerHTML of null). Corrigido caçando cada
+       ocorrência de getElementById(...) manualmente.
+    Ver INSTRUCOES_ASSISTENTE.md, armadilha #9, para o procedimento
+    completo a seguir da próxima vez que um módulo novo for integrado.
+
+
+--------------------------------------------------------------------------------
+  REGRAS TÉCNICAS PERMANENTES
+--------------------------------------------------------------------------------
+  1. Chart.js v3.9.1 APENAS — nunca carregar v4.x globalmente (se o
+     arquivo-fonte do módulo novo trouxer seu próprio Chart.js embutido,
+     descartar e reaproveitar o global)
+  2. Ler arquivos com null-byte safety:
+       open(...,'rb').read().replace(b'\x00',b'').decode('utf-8')
+  3. CSS de cada aba escopado com #tab-X (função scope_css Python) — e sem
+     redefinir variáveis --blue-* locais, para herdar o tema ativo
+  4. Scripts de módulo em IIFE para isolar consts (const RAW, const DATA,
+     const MESES_NM etc. não podem vazar pro escopo global)
+  5. Lazy init com flag por aba (data-mounted / window._mount_NOME) —
+     Chart.js falha em canvas com display:none
+  6. Reflow (void el.offsetWidth) sempre no elemento animado, nunca no pai
+  7. Edição do template __bundler: operar na string Python (após
+     json.loads OU splicing direto com âncoras ASCII sem aspas/quebra de
+     linha), recodificar com json.dumps(...)[1:-1] ou + replace '</' →
+     '<\/' para manter a convenção de escaping do arquivo inteiro
+  8. index.txt sempre em sincronia byte-a-byte com o v5.4.html (produção)
+  9. Todo módulo novo precisa ter seus ids conferidos contra os ids já
+     existentes no arquivo unificado antes da inserção (ver armadilha #9
+     do INSTRUCOES_ASSISTENTE.md) — inclusive ids montados por
+     concatenação de string em JS, não só os id="..." estáticos
+
+
+--------------------------------------------------------------------------------
+  ARQUIVOS NA PASTA (atualizado v5.4)
+--------------------------------------------------------------------------------
+  Dashboard Grupo Delta v5.4.html    → PRODUÇÃO (8 abas)
+  Dashboard Grupo Delta v5.3.html    → versão anterior — não editar
+  index.txt                          → Espelho do v5.4 (arquivo publicado)
+  Dashboard Financeiro v3.2.html     → Fonte: Financeiro - Pagar
+  Dashboard A Receber v2.3.html      → Fonte: Financeiro - Receber
+  Dashboard Analise Mensal v2.1.html → Fonte: Financeiro - Global Mensal
+  Dashboard Contratos v3.4.html      → Fonte: Contratos - Gestão
+  Dashboard_Conciliacao_v2.3.html    → Fonte: Conciliação
+  Dashboard_Comissoes_v1.2.html      → Fonte: Comissão
+  Dashboard_Vendas_v1.0.html         → Fonte: Vendas
+
+
+================================================================================
+  Grupo Delta Construtora | Supervisão Administrativa
+  Luiz Carlos Tenório Cavalcanti Filho | Jul 2026
+================================================================================

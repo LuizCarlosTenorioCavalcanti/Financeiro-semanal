@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Conciliação Bancária | Grupo Delta</title>
+    <style>
+        :root{
+          --blue-900:#0d2b52; --blue-800:#123f78; --blue-700:#1B5BA4; --blue-600:#2B75B8; --blue-500:#3f8ad1;
+          --blue-100:#e8f1f9; --blue-50:#f0f5fb;
+          --green:#1f9d63; --orange:#e08a2c; --red:#e5533d; --purple:#8b5cf6; --teal:#14b8a6; --indigo:#6366f1;
+          --ink:#101820; --ink-soft:#4c5b6b; --line:rgba(16,24,32,0.09); --paper:#ffffff; --bg-0:#eef2f7;
+          --shadow-sm: 0 1px 2px rgba(13,43,82,0.05), 0 1px 1px rgba(13,43,82,0.04);
+          --shadow-md: 0 10px 30px -12px rgba(13,43,82,0.18);
+          --shadow-lg: 0 22px 60px -18px rgba(13,43,82,0.28);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background:
+              radial-gradient(1100px 500px at 8% -10%, rgba(43,117,184,0.14), transparent 60%),
+              radial-gradient(900px 500px at 100% 0%, rgba(27,91,164,0.10), transparent 55%),
+              var(--bg-0);
+            min-height: 100vh; padding: 24px;
+        }
+        ::-webkit-scrollbar{ width:10px; height:10px; }
+        ::-webkit-scrollbar-track{ background:transparent; }
+        ::-webkit-scrollbar-thumb{ background: rgba(27,91,164,0.28); border-radius:20px; }
+        ::-webkit-scrollbar-thumb:hover{ background: rgba(27,91,164,0.45); }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: linear-gradient(120deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-600) 100%); color: white; padding: 22px 24px; box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 100; margin-bottom: 24px; border-radius: 0 0 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .header-content { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .logo-text h1 { font-family:'Sora','Segoe UI',sans-serif; font-size: 20px; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; letter-spacing: 0.3px; }
+        .logo-text p { font-size: 12.5px; opacity: 1; margin-top: 5px; color: rgba(255,255,255,0.85); font-weight: 500; }
+        .header-meta { font-size: 10.5px; color: rgba(255,255,255,0.65); margin-top: 3px; }
+        .filters, .filters-bar { background: var(--paper); padding: 20px; border-radius: 16px; box-shadow: var(--shadow-md); margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; align-items: end; border: 1px solid var(--line); }
+        .filter-group { display: flex; flex-direction: column; }
+        label { font-weight: 700; margin-bottom: 8px; color: var(--blue-700); font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; }
+        select { padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; font-size: 14px; transition: all .2s; background: #fbfcfe; }
+        select:hover { border-color: var(--blue-600); }
+        select:focus { outline: none; border-color: var(--blue-700); box-shadow: 0 0 0 4px rgba(27,91,164,0.09); }
+        .btn-clear { padding: 10px 20px; background: var(--blue-700); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; height: 42px; transition: all .2s; }
+        .btn-clear:hover { background: var(--blue-600); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 24px; }
+        .kpi-card { position: relative; overflow: hidden; background: var(--paper); border-radius: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--line); transition: all 0.25s cubic-bezier(.2,.8,.2,1); }
+        .kpi-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--blue-700); }
+        .kpi-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: rgba(27,91,164,0.25); }
+        .kpi-card.verde::before { background: var(--green); }
+        .kpi-card.amarelo::before { background: var(--orange); }
+        .kpi-card.vermelho::before { background: var(--red); }
+        .kpi-card.roxo::before { background: var(--purple); }
+        .kpi-card.teal::before { background: var(--teal); }
+        .kpi-card-header { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s; }
+        .kpi-card-header:hover { background-color: var(--blue-50); }
+        .kpi-card-header.expanded { background-color: var(--blue-50); }
+        .kpi-card-left { display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center; }
+        .kpi-label { font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; font-weight: 700; }
+        .kpi-value { font-family:'Sora','Segoe UI',sans-serif; font-size: 28px; font-weight: 700; color: var(--blue-700); letter-spacing: -0.3px; }
+        .kpi-value.verde { color: var(--green); }
+        .kpi-value.amarelo { color: var(--orange); }
+        .kpi-value.vermelho { color: var(--red); }
+        .kpi-value.roxo { color: var(--purple); }
+        .kpi-card.roxo .kpi-value { color: var(--purple); }
+        .kpi-expand-icon { font-size: 18px; color: var(--ink-soft); transition: transform 0.3s; user-select: none; }
+        .kpi-expand-icon.expanded { transform: rotate(180deg); }
+        .kpi-card-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; border-top: 1px solid var(--line); }
+        .kpi-card-content.expanded { max-height: 400px; transition: max-height 0.3s ease-in; }
+        .resumo-grid { display: flex; gap: 10px; flex-wrap: wrap; padding: 16px; }
+        .resumo-box { flex: 1; min-width: 90px; background: #fbfcfe; border: 1px solid var(--line); border-radius: 10px; padding: 12px 8px; text-align: center; transition: all .2s; }
+        .resumo-box:hover { border-color: var(--blue-600); transform: translateY(-2px); }
+        .resumo-box .resumo-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ink-soft); margin-bottom: 6px; font-weight: 700; line-height: 1.3; }
+        .resumo-box .resumo-value { font-family:'Sora','Segoe UI',sans-serif; font-size: 24px; font-weight: 700; color: var(--ink); }
+        .resumo-box.pend .resumo-label { color: #b45309; }
+        .resumo-box.pend .resumo-value { color: #b45309; }
+        .resumo-box.nok .resumo-label { color: var(--red); }
+        .resumo-box.nok .resumo-value { color: var(--red); }
+        .resumo-box.verde .resumo-value { color: var(--green); }
+        .resumo-box.verde .resumo-label { color: var(--green); }
+        .tree-section { background: var(--paper); padding: 20px; border-radius: 16px; box-shadow: var(--shadow-sm); margin-bottom: 20px; border: 1px solid var(--line); transition: box-shadow .3s; }
+        .tree-section:hover { box-shadow: var(--shadow-md); }
+        .section-title { font-family:'Sora','Segoe UI',sans-serif; font-size: 17px; font-weight: 700; color: var(--blue-700); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 3px solid var(--blue-700); }
+        .tree-node { margin-bottom: 6px; }
+        .tree-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 14px 16px; border-radius: 10px; transition: background-color 0.2s; user-select: none; }
+        .tree-header:hover { background-color: var(--blue-50); }
+        .tree-l1 > .tree-header { background: var(--blue-50); border-left: 4px solid var(--blue-700); }
+        .tree-l1 > .tree-header .tree-title { font-size: 13px; font-weight: 700; color: var(--blue-700); text-transform: uppercase; letter-spacing: 0.4px; }
+        .tree-title-wrapper { display: flex; gap: 10px; align-items: center; }
+        .tree-count { font-size: 11px; font-weight: 700; color: var(--ink-soft); background: #e9edf2; padding: 3px 10px; border-radius: 12px; }
+        .tree-count-pend { font-size: 11px; font-weight: 700; color: #b45309; background: #fef3c7; padding: 3px 10px; border-radius: 12px; }
+        .tree-icon { font-size: 13px; color: var(--ink-soft); transition: transform 0.3s; user-select: none; }
+        .tree-icon.expanded { transform: rotate(180deg); }
+        .tree-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .tree-content.expanded { max-height: 5000px; transition: max-height 0.6s ease-in; }
+        .tree-table-wrapper { padding: 12px 0 8px 0; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { background: #fbfcfe; }
+        th { padding: 11px 12px; text-align: left; font-weight: 700; color: var(--ink-soft); border-bottom: 2px solid var(--line); white-space: nowrap; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f2f4f7; vertical-align: top; }
+        tbody tr { transition: background .15s; }
+        tbody tr:hover { background: #fafcff; }
+        .badge { display: inline-block; padding: 4px 11px; border-radius: 20px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+        .badge-ok { background: #dcfce7; color: #166534; }
+        .badge-pend { background: #fef3c7; color: #92400e; }
+        .badge-nok { background: #fee2e2; color: #991b1b; }
+        .comment-text { font-size: 11px; color: var(--ink-soft); font-style: italic; max-width: 350px; line-height: 1.4; }
+        .no-data { color: #9ca3af; font-style: italic; text-align: center; padding: 20px; }
+        .valor-neg { color: var(--red); }
+        footer { text-align: center; color: #9ca3af; font-size: 12px; margin-top: 30px; padding: 20px; }
+        @media (max-width: 768px) { .kpi-container { grid-template-columns: 1fr; } th, td { padding: 8px; } table { font-size: 12px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-text">
+                <h1>&#9679; GRUPO DELTA</h1>
+                <p>Conciliação Bancária</p>
+                <p class="header-meta">Atualizado: 24/07/2026 às 14:38 </p>
+                <p class="header-meta">Responsável: Luiz Carlos Tenório Cavalcanti Filho</p>
+            </div>
+            <div style="text-align:right;color:white;font-size:12px;font-weight:600;opacity:0.8;">v2.3</div>
+        </div>
+    </div>
+
+    <div style="background:var(--paper); padding:14px 20px; border-radius:16px; box-shadow:var(--shadow-sm); border:1px solid var(--line); margin-bottom:24px; display:flex; align-items:center; gap:8px; transition:box-shadow .3s;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+        <span style="font-size:13px; color:#6b7280; font-weight:500; text-transform:uppercase; letter-spacing:0.5px;">Data Última Conciliação:</span>
+        <span id="dataUltimaConciliacao" style="font-size:15px; font-weight:700; color:#1e3a8a;"></span>
+    </div>
+
+    <div class="kpi-container" id="kpiLinha1"></div>
+    <div class="kpi-container" id="kpiLinha2"></div>
+    <div id="secaoVivaDelta" class="tree-section"></div>
+    <div id="secaoMrDelta" class="tree-section"></div>
+    <div id="secaoDelta" class="tree-section"></div>
+
+    <footer>Dashboard Conciliação Bancária — Grupo Delta &nbsp;|&nbsp; Gerado em 19/06/2026 &nbsp;|&nbsp; v2.3</footer>
+</div>
+<script>
+const RELATORIOS = [
+  {
+    "arquivo": "2026_07_23_VIVA DELTA_BANCARIA.xlsx",
+    "empresa": "VIVA DELTA",
+    "ano": "2026",
+    "mes": "07",
+    "dia": "23",
+    "data_relatorio": "23/07/2026",
+    "contas": [
+      {
+        "nome": "126-1 - 575523126-1 - CEF  ( VJ 07 - MOD II )",
+        "saldo": 19645.53,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "232-2 - 575523232-2 - CEF - ( VJ 07 - MOD I )",
+        "saldo": 24293.3,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "302-0 - 577508.302-0 - CEF - (VJ 6 - MOD II)",
+        "saldo": 14597.92,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "397200-3 - BRADESCO - CTA PRINCIPAL -MOVIMENTO*",
+        "saldo": 610488.55,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "4775-9 - BRADESCO ( VJ 07 ) - 4775-9",
+        "saldo": 12052.56,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "4777-5 - BRADESCO ( VJ 05 ) - 4777-5",
+        "saldo": 9171.31,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "4804-6 - BRADESCO ( VJ 06 ) - 4804-6",
+        "saldo": 6126.64,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "51281-3 - SICREDI - CTA PRINCIPAL - MOVIMENTO",
+        "saldo": 24804.18,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "51281-3CG - SICREDI - CTA GARANTIDA",
+        "saldo": -0.49,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "512813 SICRE IC - SICREDI - INTEGRALIZAÇAO DE CAPITAL",
+        "saldo": 3000.0,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "5463-0 - BNB - PRINCIPAL-MOVIMENTO - VIVA DELTA",
+        "saldo": 0.0,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "5466-5 - BNB - CTA FUNDO DE LIQUIDEZ - VIVA DELTA",
+        "saldo": 0.0,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "5467-3 - BNB - CTA TRANSITÓRIA - VIVA DELTA",
+        "saldo": 0.0,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "5515-8 - BRADESCO -  ( VJ 08 )",
+        "saldo": 12591.0,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "669-5 - 577610.669-5 - CEF - TRINCHEIRA CTA TAXA",
+        "saldo": 18770.38,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "567-0 - 577569.567-0 - CEF (EPITÁCIO) - CTA TAXA",
+        "saldo": 13262.18,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "771-1 - CEF -  (VJ 8 - MOD II)",
+        "saldo": 20410.44,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "207-5 - 577508.207-5 - CEF - CTA DE MOV-APLICAÇÃ",
+        "saldo": 26133.82,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "228-8 - 577508.228-8 - CEF ( VJ 08 - MOD I )",
+        "saldo": 28081.6,
+        "nao_conc": 0.0
+      }
+    ]
+  },
+  {
+    "arquivo": "2026_07_23_MRDELTA_BANCARIA.xlsx",
+    "empresa": "MRDELTA",
+    "ano": "2026",
+    "mes": "07",
+    "dia": "23",
+    "data_relatorio": "23/07/2026",
+    "contas": [
+      {
+        "nome": "577508265-2 - 577508.265-2 CEF CTA PRINCIPAL",
+        "saldo": 39662.12,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "1483-1 - SICREDI",
+        "saldo": 1961.77,
+        "nao_conc": 0.0,
+        "obs": "Conta com conciliação realizada mensalmente (não diária)."
+      },
+      {
+        "nome": "4745-7 - BRADESCO - CTA PRINCIPAL MOVIMENTO",
+        "saldo": 598216.28,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "573228559-4 - CEF - CAPRI MOD 2",
+        "saldo": 0.0,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "5743500149-9 - CEF - CAPRI MOD 1",
+        "saldo": 490040.6,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "693-1 - 574349693-1 - CEF - MONTALCCINO MOD II",
+        "saldo": 19550.24,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "000574349634-6 - 574349634-6 - CEF - MONTALCCINO MOD I",
+        "saldo": 29096.66,
+        "nao_conc": 0.0
+      }
+    ]
+  },
+  {
+    "arquivo": "2026_07_23_DELTA_VOAL_BANCARIA.xlsx",
+    "empresa": "DELTA VOAL",
+    "ano": "2026",
+    "mes": "07",
+    "dia": "23",
+    "data_relatorio": "23/07/2026",
+    "contas": [
+      {
+        "nome": "161-5-PJ -  569802161-5 - VOAL PJ",
+        "saldo": 19354.06,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "521-1 - 000569802521-1 CTA DE RECEBIMENTOS MOVIM",
+        "saldo": 45256.92,
+        "nao_conc": 0.0
+      },
+      {
+        "nome": "7584-8 - 578627584-8 - CEF  CTA PRINCIPAL",
+        "saldo": 34987.76,
+        "nao_conc": 0.0
+      }
+    ]
+  }
+];
+  const INVESTIMENTOS = [
+  {
+    "empresa": "VIVA DELTA",
+    "ano": "2026",
+    "mes": "07",
+    "dia": "23",
+    "data_relatorio": "23/07/2026",
+    "contas": [
+      {
+        "nome": "207-5MEGA - CEF INVESTMENTO FI MEGA REFERENCIADO DI",
+        "saldo": 0.0
+      },
+      {
+        "nome": "207-5TOPZ - FI CAIXA TOPAZIO CORPORATIVO RF REF",
+        "saldo": 5623828.93
+      },
+      {
+        "nome": "397200-3POUP - POUPANÇA BRADESCO",
+        "saldo": 0.0
+      },
+      {
+        "nome": "5463-0INVE - BNB INVESTIMENTO - CTA PRINCIPAL",
+        "saldo": 116118.04
+      },
+      {
+        "nome": "5466-5INVE - 5466-5 - INVESTIMENTO BNB CTA LIQUIDEZ",
+        "saldo": 0.0
+      },
+      {
+        "nome": "5805-9INVE - CEF INVESTIMENTO - EPITACIO - CTA TAXA",
+        "saldo": 996.53
+      },
+      {
+        "nome": "669-5INVES - CEF INVESTIMENTO - TRINCHEIRAS CTA TAXA",
+        "saldo": 4469.42
+      },
+      {
+        "nome": "207-5INVCDB - CEF-INVEST CDB 577508.207-5 -CTA MOV-AP",
+        "saldo": 0.0
+      },
+      {
+        "nome": "742-7 - 727974.742-7 - CEF POUPANÇA - VIVA DELTA",
+        "saldo": 467.34
+      },
+      {
+        "nome": "665-3 - CEF - 732324665-3  POUPANÇA POUPANÇA",
+        "saldo": 0.0
+      }
+    ]
+  },
+  {
+    "empresa": "MRDELTA",
+    "ano": "2026",
+    "mes": "07",
+    "dia": "23",
+    "data_relatorio": "23/07/2026",
+    "contas": [
+      {
+        "nome": "265-2DIA - CEF INVESTIM - CAIXA FI DIAMANTE CORP RF",
+        "saldo": 0.0
+      },
+      {
+        "nome": "265-2TPZ - CEF INVESTIMENTO - TOPAZIO 577508265-2",
+        "saldo": 2763487.3
+      },
+      {
+        "nome": "265-2GIRO - CEF INVESTIMENTO - FIC GIRO MPE RF DI LP",
+        "saldo": 0.0
+      },
+      {
+        "nome": "265-2MEGA - CEF INVESTIMENTO - FI MEGA REFERENCIADO",
+        "saldo": 0.0
+      },
+      {
+        "nome": "265-2RUBI - CEF INVESTIMENTO - RUBI RF REF DI LP",
+        "saldo": 0.0
+      }
+    ]
+  },
+  {
+    "empresa": "DELTA VOAL",
+    "ano": "2026",
+    "mes": "07",
+    "dia": "23",
+    "data_relatorio": "23/07/2026",
+    "contas": [
+      {
+        "nome": "161-5INV - 569802161-5 - CEF - INVESTIMENTO VOAL PJ",
+        "saldo": 0.0
+      },
+      {
+        "nome": "584-8 INVES - INV SIGMA 578627.584-8  VOAL",
+        "saldo": 0.0
+      }
+    ]
+  }
+];
+  const PENDENCIAS = [
+  {
+    "empresa": "DELTA VOAL",
+    "conta_busca": "SANTANDER",
+    "banco": "13007399 - SANTANDER",
+    "comentario": "SALDO CONCILIADO ATÉ O DIA 17/05/2026 . APÓS ISSO ANGÉLICA PERDEU O ACESSO DO BANCO E VAI TENTAR RECUPERAR PARA EMISSÃO DOS EXTRATOS."
+  },
+  {
+    "empresa": "DELTA VOAL",
+    "conta_busca": "SAFRA",
+    "banco": "581254 - BANCO SAFRA",
+    "comentario": "CONTA CONCILIADA PORÉM EXISTEM VALORES “SOBRANDO” REF A RECEBIMENTO QUE PRECISAM SER CORRIGIDOS.\n\n\n\nESSEA VLORES JÁ FORAM PASSADOS PARA O SETOR CONTAS A RECEBER E ESTÁ SENDO FEITO AS CORREÇÕES."
+  }
+];
+
+// ─── UTILITÁRIOS ───────────────────────────────────────────────────────────
+function fmt(v) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+}
+
+function extractCodigo(nome) {
+  var m = (nome || '').match(/^(\d+-\d+)/);
+  return m ? m[1] : null;
+}
+
+function getPendencia(empresa, contaNome) {
+  return PENDENCIAS.find(function(p) {
+    return p.empresa === empresa && contaNome.toUpperCase().indexOf(p.conta_busca.toUpperCase()) >= 0;
+  });
+}
+
+function isConciliado(conta) { return conta.nao_conc === 0; }
+
+function getInvsEmpresa(empresa) {
+  for (var i = 0; i < INVESTIMENTOS.length; i++) {
+    if (INVESTIMENTOS[i].empresa === empresa) return INVESTIMENTOS[i];
+  }
+  return null;
+}
+
+function codigoMatch(cb, ci) {
+  return cb === ci || cb.indexOf(ci) >= 0 || ci.indexOf(cb) >= 0;
+}
+
+function getInvsConta(empresa, contaNome) {
+  var invRel = getInvsEmpresa(empresa);
+  if (!invRel) return [];
+  var codigoBanc = extractCodigo(contaNome);
+  if (!codigoBanc) return [];
+  return invRel.contas.filter(function(c) {
+    var codigoInv = extractCodigo(c.nome);
+    return codigoInv && codigoMatch(codigoBanc, codigoInv);
+  });
+}
+
+function getInvsOrfas(empresa, rels) {
+  var invRel = getInvsEmpresa(empresa);
+  if (!invRel) return [];
+  var rel = null;
+  for (var i = 0; i < rels.length; i++) { if (rels[i].empresa === empresa) { rel = rels[i]; break; } }
+  return invRel.contas.filter(function(ic) {
+    var codigoInv = extractCodigo(ic.nome);
+    if (!codigoInv) return true;
+    if (!rel) return true;
+    return !rel.contas.some(function(bc) {
+      var cb = extractCodigo(bc.nome);
+      return cb && codigoMatch(cb, codigoInv);
+    });
+  });
+}
+
+function saldoInvEmpresa(empresa) {
+  var invRel = getInvsEmpresa(empresa);
+  if (!invRel) return 0;
+  return invRel.contas.reduce(function(s, c) { return s + c.saldo; }, 0);
+}
+
+function totalContasInv() {
+  return INVESTIMENTOS.reduce(function(s, inv) {
+    return s + inv.contas.filter(function(c) { return c.saldo !== 0; }).length;
+  }, 0);
+}
+
+function getRelsFiltrados() { return RELATORIOS; }
+
+// ─── TOGGLE ────────────────────────────────────────────────────────────────
+function toggleTree(header) {
+  var icon = header.querySelector('.tree-icon');
+  if (icon) icon.classList.toggle('expanded');
+  var content = header.closest('.tree-node').querySelector('.tree-content');
+  if (content) content.classList.toggle('expanded');
+}
+
+function toggleInvDetail(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'table-row' : 'none';
+}
+
+// ─── KPI LINHA 1 ───────────────────────────────────────────────────────────
+function renderKpiLinha1(rels) {
+  var totalContas = 0, saldoBanc = 0, qtdComPend = 0, naoConc = 0;
+  rels.forEach(function(r) {
+    r.contas.forEach(function(c) {
+      totalContas++;
+      if (!isConciliado(c)) { naoConc++; }
+      else { saldoBanc += c.saldo; if (getPendencia(r.empresa, c.nome)) qtdComPend++; }
+    });
+  });
+  var totalInv = totalContasInv();
+  var saldoInv = ['DELTA VOAL','VIVA DELTA','MRDELTA'].reduce(function(s, e) { return s + saldoInvEmpresa(e); }, 0);
+  var saldoTotal = saldoBanc + saldoInv;
+
+  var cards = [
+    { label: 'SALDO TOTAL (BANC&Aacute;RIA + INVESTIMENTO)', disp: fmt(saldoTotal), cls: 'verde', vcls: 'verde' },
+    { label: 'TOTAL CONTAS BANC&Aacute;RIAS', disp: totalContas.toString(), cls: '', vcls: '' },
+    { label: 'SALDO BANC&Aacute;RIO CONCILIADO', disp: fmt(saldoBanc), cls: '', vcls: '' },
+    { label: 'CONTAS COM APLICA&Ccedil;&Atilde;O', disp: totalInv.toString(), cls: 'roxo', vcls: 'roxo' },
+    { label: 'SALDO INVESTIDO', disp: fmt(saldoInv), cls: 'roxo', vcls: 'roxo' },
+    { label: 'CONTAS N&Atilde;O CONCILIADAS', disp: naoConc.toString(), cls: 'vermelho', vcls: naoConc > 0 ? 'vermelho' : '' },
+    { label: 'CONTAS COM PEND&Ecirc;NCIA', disp: qtdComPend.toString(), cls: 'amarelo', vcls: qtdComPend > 0 ? 'amarelo' : '' }
+  ];
+  document.getElementById('kpiLinha1').innerHTML = cards.map(function(c) {
+    var fs = c.disp.length > 14 ? '18px' : '28px';
+    return '<div class="kpi-card ' + c.cls + '">' +
+      '<div class="kpi-card-header" style="cursor:default;">' +
+      '<div class="kpi-card-left">' +
+      '<div class="kpi-label">' + c.label + '</div>' +
+      '<div class="kpi-value ' + c.vcls + '" style="font-size:' + fs + '">' + c.disp + '</div>' +
+      '</div></div></div>';
+  }).join('');
+}
+
+// ─── KPI EMPRESA ───────────────────────────────────────────────────────────
+function calcEmpresa(rels, empresa) {
+  var rel = null;
+  for (var i = 0; i < rels.length; i++) { if (rels[i].empresa === empresa) { rel = rels[i]; break; } }
+  if (!rel) return { total: 0, semPend: 0, comPend: 0, naoConc: 0, saldoBanc: 0, saldoInv: 0 };
+  var semPend = 0, comPend = 0, naoConc = 0, saldoBanc = 0;
+  rel.contas.forEach(function(c) {
+    if (!isConciliado(c)) { naoConc++; }
+    else { saldoBanc += c.saldo; if (getPendencia(empresa, c.nome)) comPend++; else semPend++; }
+  });
+  var saldoInv = saldoInvEmpresa(empresa);
+  return { total: rel.contas.length, semPend: semPend, comPend: comPend, naoConc: naoConc, saldoBanc: saldoBanc, saldoInv: saldoInv };
+}
+
+function renderKpiEmpresa(empresa, stats, cls) {
+  var saldoTotal = stats.saldoBanc + stats.saldoInv;
+  return '<div class="kpi-card ' + cls + '">' +
+    '<div class="kpi-card-header" style="cursor:default; flex-direction:column; gap:12px;">' +
+    '<div class="kpi-label" style="font-size:14px; font-weight:700; color:#1e3a8a; text-align:center; width:100%;">' + empresa + '</div>' +
+    '<div style="display:flex; gap:8px; width:100%; flex-wrap:wrap;">' +
+      '<div class="resumo-box verde" style="flex:1; min-width:110px; text-align:center;">' +
+        '<div class="resumo-label" style="color:#059669;">SALDO TOTAL (BANC.+INV.)</div>' +
+        '<div class="resumo-value" style="font-size:14px; color:#059669;">' + fmt(saldoTotal) + '</div>' +
+      '</div>' +
+      '<div class="resumo-box" style="flex:1; min-width:110px; text-align:center; border-color:#1e3a8a;">' +
+        '<div class="resumo-label" style="color:#1e3a8a;">SALDO BANC&Aacute;RIO CONCILIADO</div>' +
+        '<div class="resumo-value" style="font-size:14px; color:#1e3a8a;">' + fmt(stats.saldoBanc) + '</div>' +
+      '</div>' +
+      '<div class="resumo-box" style="flex:1; min-width:110px; text-align:center; border-color:#8b5cf6;">' +
+        '<div class="resumo-label" style="color:#7c3aed;">SALDO INVESTIDO</div>' +
+        '<div class="resumo-value" style="font-size:14px; color:#7c3aed;">' + fmt(stats.saldoInv) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="resumo-grid" style="width:100%; margin:0; padding:0;">' +
+    '<div class="resumo-box"><div class="resumo-label">Total<br>Contas</div><div class="resumo-value">' + stats.total + '</div></div>' +
+    '<div class="resumo-box"><div class="resumo-label">Conciliado<br>Sem Pend&ecirc;ncia</div><div class="resumo-value">' + stats.semPend + '</div></div>' +
+    '<div class="resumo-box pend"><div class="resumo-label">Conciliado<br>Com Pend&ecirc;ncia</div><div class="resumo-value">' + stats.comPend + '</div></div>' +
+    '<div class="resumo-box nok"><div class="resumo-label">N&atilde;o<br>Conciliadas</div><div class="resumo-value">' + stats.naoConc + '</div></div>' +
+    '</div>' +
+    '</div></div>';
+}
+
+function renderKpiLinha2(rels) {
+  var delta = calcEmpresa(rels, 'DELTA VOAL');
+  var viva  = calcEmpresa(rels, 'VIVA DELTA');
+  var mr    = calcEmpresa(rels, 'MRDELTA');
+  document.getElementById('kpiLinha2').innerHTML =
+    renderKpiEmpresa('DELTA VOAL', delta, 'teal') +
+    renderKpiEmpresa('VIVA DELTA', viva, 'verde') +
+    renderKpiEmpresa('MRDELTA', mr, 'roxo');
+}
+
+// ─── SEÇÃO EXPANSÍVEL ──────────────────────────────────────────────────────
+function badgeStatus(empresa, conta) {
+  if (!isConciliado(conta)) return '<span class="badge badge-nok">N&Atilde;O CONCILIADO</span>';
+  return getPendencia(empresa, conta.nome)
+    ? '<span class="badge badge-pend">PEND&Ecirc;NCIA</span>'
+    : '<span class="badge badge-ok">OK</span>';
+}
+
+function renderSecaoEmpresa(containerId, empresa, rels) {
+  var rel = null;
+  for (var i = 0; i < rels.length; i++) { if (rels[i].empresa === empresa) { rel = rels[i]; break; } }
+  var pends = PENDENCIAS.filter(function(p) { return p.empresa === empresa; });
+  var totalContas = rel ? rel.contas.length : 0;
+  var comPend = 0;
+  if (rel) { rel.contas.forEach(function(c) { if (getPendencia(empresa, c.nome)) comPend++; }); }
+  var deltaSemRel = !rel && pends.length > 0;
+  var totalDisp = totalContas + (deltaSemRel ? pends.length : 0);
+  var totalPend = comPend + (deltaSemRel ? pends.length : 0);
+
+  var countBadge = '<span class="tree-count">' + totalDisp + ' contas</span>';
+  var pendBadge = totalPend > 0 ? '<span class="tree-count-pend">' + totalPend + ' com pend&ecirc;ncia</span>' : '';
+
+  var tabelaHTML = '';
+  if (rel && rel.contas.length > 0) {
+    var rowsHTML = '';
+    var sorted = rel.contas.slice().sort(function(a, b) { return b.saldo - a.saldo; });
+    sorted.forEach(function(c, idx) {
+      var pend = getPendencia(empresa, c.nome);
+      var bancNeg = c.saldo < 0 ? ' style="color:#dc2626;"' : '';
+
+      // Investimentos desta conta
+      var invs = getInvsConta(empresa, c.nome);
+      var saldoInvTotal = invs.reduce(function(s, inv) { return s + inv.saldo; }, 0);
+      var saldoTotal = c.saldo + saldoInvTotal;
+      var totalNeg = saldoTotal < 0 ? ' style="color:#dc2626;"' : '';
+
+      // Célula Saldo Investido
+      var invCell = '';
+      var detailId = 'inv-' + empresa.replace(/ /g, '') + '-' + idx;
+      if (invs.length === 0) {
+        invCell = '<span style="color:#9ca3af;font-style:italic;font-size:11px;">SEM INVESTIMENTO</span>';
+      } else if (invs.length === 1) {
+        var invNeg = invs[0].saldo < 0 ? ' style="color:#dc2626;"' : '';
+        invCell = '<span' + invNeg + '>' + fmt(invs[0].saldo) + '</span>' +
+          '<div style="font-size:10px;color:#6b7280;margin-top:2px;">' + invs[0].nome + '</div>';
+      } else {
+        var invNeg = saldoInvTotal < 0 ? ' style="color:#dc2626;"' : '';
+        invCell = '<span' + invNeg + '>' + fmt(saldoInvTotal) + '</span> ' +
+          '<button onclick="toggleInvDetail(\'' + detailId + '\')" style="font-size:10px;background:#ede9fe;border:1px solid #8b5cf6;border-radius:3px;padding:1px 6px;cursor:pointer;color:#7c3aed;margin-left:4px;">&#9660; ' + invs.length + '</button>';
+      }
+
+      rowsHTML += '<tr>' +
+        '<td>' + c.nome + '</td>' +
+        '<td style="white-space:nowrap;">' + rel.data_relatorio + '</td>' +
+        '<td' + bancNeg + '>' + fmt(c.saldo) + '</td>' +
+        '<td>' + invCell + '</td>' +
+        '<td' + totalNeg + '><strong>' + fmt(saldoTotal) + '</strong></td>' +
+        '<td>' + badgeStatus(empresa, c) + '</td>' +
+        '<td class="comment-text">' + (pend ? pend.comentario : (c.obs ? c.obs : '&mdash;')) + '</td>' +
+        '</tr>';
+
+      // Sub-linhas para múltiplos investimentos
+      if (invs.length > 1) {
+        var subRows = invs.map(function(inv) {
+          var neg = inv.saldo < 0 ? 'color:#dc2626;' : '';
+          return '<tr style="background:#faf5ff;">' +
+            '<td colspan="2" style="padding-left:36px;font-size:12px;color:#7c3aed;">&#8627; ' + inv.nome + '</td>' +
+            '<td></td>' +
+            '<td style="' + neg + 'font-size:12px;">' + fmt(inv.saldo) + '</td>' +
+            '<td colspan="3"></td>' +
+            '</tr>';
+        }).join('');
+        rowsHTML += '<tr id="' + detailId + '" style="display:none;"><td colspan="7" style="padding:0;">' +
+          '<table style="width:100%;border-collapse:collapse;">' + subRows + '</table></td></tr>';
+      }
+    });
+
+    // Contas investimento sem par bancário (órfãs)
+    var orfas = getInvsOrfas(empresa, rels);
+    var orfasHTML = orfas.map(function(ic) {
+      var neg = ic.saldo < 0 ? ' style="color:#dc2626;"' : '';
+      return '<tr style="background:#faf5ff;">' +
+        '<td style="color:#7c3aed;font-style:italic;">' + ic.nome + '</td>' +
+        '<td style="color:#9ca3af;">&#8212;</td>' +
+        '<td style="color:#9ca3af;">SEM BANCÁRIA</td>' +
+        '<td' + neg + '>' + fmt(ic.saldo) + '</td>' +
+        '<td' + neg + '>' + fmt(ic.saldo) + '</td>' +
+        '<td><span class="badge" style="background:#ede9fe;color:#7c3aed;">INVESTIMENTO</span></td>' +
+        '<td>&#8212;</td>' +
+        '</tr>';
+    }).join('');
+
+    tabelaHTML = '<div class="tree-table-wrapper"><table>' +
+      '<thead><tr>' +
+      '<th>Conta Corrente</th>' +
+      '<th>Data</th>' +
+      '<th>Saldo Banc&aacute;rio</th>' +
+      '<th>Saldo Aplicado</th>' +
+      '<th>Saldo Total</th>' +
+      '<th>Status</th>' +
+      '<th>Coment&aacute;rio</th>' +
+      '</tr></thead><tbody>' + rowsHTML + orfasHTML + '</tbody></table></div>';
+
+  } else if (deltaSemRel) {
+    var rows2 = pends.map(function(p) {
+      return '<tr><td>' + p.banco + '</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>' +
+        '<td><span class="badge badge-pend">PEND&Ecirc;NCIA</span></td>' +
+        '<td class="comment-text">' + p.comentario + '</td></tr>';
+    }).join('');
+    tabelaHTML = '<div class="tree-table-wrapper"><table>' +
+      '<thead><tr><th>Banco</th><th>Data</th><th>Saldo Banc&aacute;rio</th><th>Saldo Aplicado</th><th>Saldo Total</th><th>Status</th><th>Coment&aacute;rio</th></tr></thead>' +
+      '<tbody>' + rows2 + '</tbody></table></div>';
+  } else {
+    tabelaHTML = '<p class="no-data">Sem relat&oacute;rio dispon&iacute;vel.</p>';
+  }
+
+  document.getElementById(containerId).innerHTML =
+    '<div class="section-title">' + empresa + '</div>' +
+    '<div class="tree-node tree-l1">' +
+    '<div class="tree-header" onclick="toggleTree(this)">' +
+    '<div class="tree-title-wrapper">' +
+    '<span class="tree-title">CONTAS BANC&Aacute;RIAS</span>' +
+    countBadge + pendBadge +
+    '</div><span class="tree-icon">&#9660;</span></div>' +
+    '<div class="tree-content">' + tabelaHTML + '</div></div>';
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  var rels = getRelsFiltrados();
+  renderKpiLinha1(rels);
+  renderKpiLinha2(rels);
+  renderSecaoEmpresa('secaoVivaDelta', 'VIVA DELTA', rels);
+  renderSecaoEmpresa('secaoMrDelta',   'MRDELTA',    rels);
+  renderSecaoEmpresa('secaoDelta',     'DELTA VOAL',      rels);
+}
+
+// Data mais recente
+var _datas = RELATORIOS.map(function(r){ return r.ano+r.mes+r.dia; }).sort();
+var _ultima = RELATORIOS.filter(function(r){ return r.ano+r.mes+r.dia === _datas[_datas.length-1]; })[0];
+if (_ultima) document.getElementById('dataUltimaConciliacao').textContent = _ultima.data_relatorio;
+
+render();
+</script>
+</body>
+</html>
