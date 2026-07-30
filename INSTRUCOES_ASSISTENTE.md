@@ -47,6 +47,7 @@ Cada um desses arquivos-fonte é standalone (a maioria também no formato `__bun
 8. Atualizar `TAB_METAS` (data de cada módulo) e o rodapé do sidebar (`vX.X · Atualizado DD/MM/AAAA às HH:MM`, hora de Brasília/sincronização, não a hora do dado em si).
 9. Validar: reabrir o JSON (`json.loads`) dos dois arquivos e confirmar que parseia sem erro. Depois, rodar `python3 scripts/validate_dashboard.py` (desde 24/07/2026 à noite — antes disso era um script Playwright escrito na mão toda vez) e conferir "0 erros" nos dois arquivos. Ele já cuida de: copiar `index.txt` pra um `.html` temporário (Chromium não executa `<script>` num arquivo servido como `.txt`), entrar a senha do gate (`deltabi`), clicar nas 8 abas com cache-busting. **Importante sobre os cartões (principalmente Vendas)**: eles têm uma animação de contagem de ~1-2s ao renderizar — se for tirar print manual pra conferir um valor (em vez de rodar o script), espere pelo menos 2s depois de trocar de aba, senão o número capturado é intermediário da animação, não o final (já pareceu um bug de cálculo errado que na real não era nada — o valor final sempre bateu).
 10. Empacotar os dois arquivos num `.zip`, entregar com `SendUserFile`, mandar pro `device_commit_files`, extrair no `device_bash` do lado do usuário e **conferir md5sum** dos arquivos finais contra os que ficaram no workspace — só then considerar a entrega concluída (ver "Entrega de arquivos grandes" abaixo).
+11. **Commitar no git local do Luiz** (combinado em 30/07/2026 — ver seção "Commit automático no git local" abaixo): depois da entrega confirmada por md5sum, rodar `git add` (só nos arquivos relevantes ao dashboard, nunca `-A`/`git add .`) + `git commit` via `device_bash` na pasta do Luiz. **NUNCA dar `git push`** — isso fica sempre por conta dele (ver motivo na seção própria).
 
 ## Scripts prontos (evitam reescrever a lógica do zero a cada sessão)
 
@@ -183,6 +184,32 @@ Corrigido com duas funções novas em `bundler_utils.py`:
 
 Ambas chamadas de dentro de `patch_briefing_header()` (já usado pelos 4 scripts de update + `update_comissoes.py`) — **não precisa chamar separado em cada script**, já roda automaticamente em todo `--apply` que toca o Daily. `hoje` é derivado do mesmo `now_str` usado pro carimbo "Atualizado", não do relógio do sistema direto — mantém tudo consistente.
 
+## Commit automático no git local (combinado em 30/07/2026)
+
+O Luiz pediu pra parar de copiar o `index.txt` manualmente pro git a cada atualização: **"eu quero que voce faça o commit so, se eu precisar dar o push. eu quero que quando eu pedir 'atualizar dados' voce verifica, atualiza e commita."** Investigação feita antes de aceitar (não supor, checar):
+
+- A pasta do Luiz (`financeiro + contratos`) É um repositório git local (branch `master`), mas **`git remote -v` está vazio — não existe remoto configurado**. Então hoje não tem "pra onde" dar push, mesmo que eu pudesse.
+- `device_bash` (a ferramenta que mexe no computador do Luiz) **não tem acesso à rede** — não dá pra rodar `git push`/`fetch`/`pull` por ela mesmo que um remoto existisse.
+- O `Bash` deste ambiente (nuvem) TEM rede e poderia falar com o GitHub, mas exigiria eu manusear credencial/token do Luiz — isso é proibido pela regra de segurança (nunca inserir senha/token/API key em nada, nem com autorização explícita do usuário). Por isso o `git push` em si **sempre fica com o Luiz**, não é uma limitação temporária, é permanente por essa regra.
+- **Conclusão prática**: eu cuido de tudo que é local e reversível (`git add` + `git commit`, via `device_bash`, na pasta dele) — o Luiz só precisa apertar "push" (GitHub Desktop, ou `git push` no terminal, do jeito que ele já usa) quando quiser publicar.
+
+### Como fazer (passo a passo)
+
+1. Depois que a atualização de dados já foi entregue e conferida por md5sum (passo 10 do checklist "atualiza os dados"), rodar via `device_bash`, na pasta do Luiz:
+   ```bash
+   cd "caminho da pasta"
+   git add "arquivo1" "arquivo2" ...   # SEMPRE listar os arquivos, nunca -A nem "git add ."
+   git commit -m "mensagem descrevendo o que mudou"
+   ```
+2. **Nunca usar `git add -A` / `git add .`** — a pasta do Luiz tem arquivos que não são do dashboard (logos soltos, SKILL.md, backups antigos tipo "Dashboard Grupo Delta v5.3.html", e uma pasta `.git_delta/` que é OUTRO repositório git dentro da pasta, achado em 30/07/2026 e nunca investigado a fundo — não commitar nem mexer nela sem perguntar ao Luiz). Listar explicitamente só: os dois arquivos de produção (`Dashboard Grupo Delta v5.4.html`, `index.txt`), o(s) arquivo(s)-fonte do(s) módulo(s) que mudou(aram) nesta rodada, e qualquer script/documentação (`scripts/*.py`, `INSTRUCOES_ASSISTENTE.md`) que tenha sido tocado.
+3. Escrever uma mensagem de commit curta em português descrevendo o que mudou de verdade (não "atualização automática" genérico) — ex: "Contratos: 2 reservas + 1 assinatura, ITBI solicitado hoje".
+
+### Pegadinha do ambiente (achada em 30/07/2026, provavelmente vai se repetir)
+
+O mount do computador do Luiz **não permite `unlink` de arquivo** (mesma limitação documentada em "Entrega de arquivos grandes": `device_bash` não consegue deletar nada com `rm`). Isso afeta o git de um jeito sutil: o git usa um arquivo `.git/index.lock` (e às vezes `.git/HEAD.lock`, `.git/objects/maintenance.lock`) como trava temporária durante qualquer operação que mexe no índice (`add`, `commit`, e até `status`, se ele tentar atualizar o cache de stat). Normalmente o git apaga esse arquivo de trava sozinho ao terminar — aqui ele **não consegue** (`warning: unable to unlink '.git/index.lock': Operation not permitted`), e o arquivo de trava fica órfão. Na PRÓXIMA operação git, isso quebra com `fatal: Unable to create '.git/index.lock': File exists.`
+
+**Regra permanente**: antes de qualquer `git add`/`git commit`/`git status` via `device_bash`, checar se já existe um `.git/index.lock` órfão (`ls -la .git/index.lock`) e, se existir, mover pra `_to_delete/` (`mv .git/index.lock "_to_delete/index.lock_stale_N"` — nome novo a cada vez, mesma lógica do `_RELOAD2.html` da armadilha #18) antes de rodar o comando. Isso é esperado acontecer de novo a cada rodada de commit — não é sinal de erro nem de outro processo git rodando de verdade, é só a limitação de unlink do mount. Os warnings de `unable to unlink '.git/objects/tmp_obj_XXX'` durante o `add`/`commit` são inofensivos (mesma causa, mas não bloqueiam a operação em si — só o `index.lock` órfão bloqueia a PRÓXIMA chamada).
+
 ## Entrega de arquivos grandes (v5.4.html/index.txt, ~9 MB)
 
 `device_commit_files` estoura timeout em arquivos desse tamanho (mesmo com retry). Fluxo validado que sempre funcionou nesta sessão:
@@ -306,3 +333,4 @@ Pra trocar um texto de Programação: usar `t.count(texto_antigo)` pra conferir 
 - Antes de aplicar atualização de dados, sempre listar o que foi encontrado e esperar confirmação (nunca aplicar direto).
 - Prefere que decisões de normalização/edição de dados (não só bug técnico) sejam perguntadas antes de aplicar.
 - A pasta no computador do Luiz às vezes desconecta durante a sessão — se acontecer, avisar e seguir com o arquivo anexado diretamente no chat para não perder tempo, mas voltar a ler/gravar pela pasta assim que ela reconectar.
+- Desde 30/07/2026: depois de toda entrega de "atualiza os dados" confirmada, fazer `git add` (arquivos específicos, nunca `-A`) + `git commit` local na pasta dele (ver seção "Commit automático no git local"). **Nunca dar `git push`** — fica sempre por conta do Luiz.
