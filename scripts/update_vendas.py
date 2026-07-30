@@ -32,11 +32,11 @@ O que este script faz:
 import argparse
 import json
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from bundler_utils import unpack, repack, find_matching, extract_js_object, check_not_truncated
+from bundler_utils import unpack, repack, find_matching, extract_js_object, check_not_truncated, patch_tab_meta, patch_sidebar_footer, patch_briefing_header, now_local_str
 
 PROD_FILES = [
     "Dashboard Grupo Delta v5.4.html",
@@ -45,7 +45,10 @@ PROD_FILES = [
 
 # Período fixo do card "Vendas" no Daily Briefing — ajuste aqui se o Luiz pedir
 # outra semana. Ver campo "periodo" do card em BRIEFING_DATA para o texto atual.
-BRIEFING_VENDAS_PERIODO = (date(2026, 7, 13), date(2026, 7, 17))
+# Atualizado em 27/07/2026 (a pedido do Luiz): sempre a semana ANTERIOR à semana
+# corrente (seg-sex), não uma data fixa esquecida no código — ajustar aqui de
+# novo se ele quiser voltar a fixar numa semana específica.
+BRIEFING_VENDAS_PERIODO = (date(2026, 7, 20), date(2026, 7, 24))
 
 
 def key(u):
@@ -169,19 +172,23 @@ def main():
         return
 
     print("\n[APLICANDO...]")
+    now_str = now_local_str()
     for fpath in PROD_FILES:
         t, c, tp, tp2, te = unpack(fpath)
         brace_start = find_vendas_data(t)
         brace_end = find_matching(t, brace_start, '{', '}')
         new_t = t[:brace_start] + json.dumps(new_data, ensure_ascii=False, separators=(',', ':')) + t[brace_end + 1:]
+        new_t = patch_tab_meta(new_t, 'vendas', now_str)
+        new_t = patch_sidebar_footer(new_t)
+        new_t = patch_briefing_header(new_t, now_str)
         new_c = repack(new_t, c, tp, te)
         Path(fpath).write_text(new_c, encoding='utf-8')
         print(f"  gravado: {fpath} ({len(new_c)} bytes)")
 
-    print("\nLembre de: atualizar TAB_METAS.vendas e o rodapé do sidebar (versão/hora),")
+    print("\nTAB_METAS.vendas atualizado automaticamente.")
     if affects_briefing:
-        print("RECALCULAR o card fixo do Daily Briefing (total/itens do período),")
-    print("depois validar com Playwright (8 abas, zero erros) antes de entregar.")
+        print("RECALCULAR o card fixo do Daily Briefing (total/itens do período) — isso o script NÃO faz sozinho.")
+    print("Falta só: validar com validate_dashboard.py (8 abas, zero erros) antes de entregar.")
 
 
 if __name__ == '__main__':

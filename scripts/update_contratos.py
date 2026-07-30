@@ -31,7 +31,9 @@ O que este script faz:
 
 FÓRMULAS DO CARD "CONTRATOS — GESTÃO" NO DAILY BRIEFING
 (reverse-engineered e validadas contra os números históricos; a regra dos
-campos "_novo" foi corrigida em 24/07/2026 — ver observação abaixo):
+campos "_novo" foi corrigida em 24/07/2026 — ver observação abaixo; o campo
+entregue_agencia_novo foi corrigido em 24/07/2026 à noite, também confirmado
+pelo Luiz — antes ele nem existia, e a UI mostrava "-" nessa coluna):
 
   contrato_sienge_total       = conta contratos com data_contrato_sienge preenchida
                                  E data_assinatura vazia (ainda não assinado)
@@ -39,26 +41,45 @@ campos "_novo" foi corrigida em 24/07/2026 — ver observação abaixo):
   assinados_novo              = conta contratos com data_assinatura == HOJE
   assinados_triagem_total     = conta contratos com etapa_itbi == 'TRIAGEM'
   itbi_solicitado_total       = conta contratos com etapa_itbi == 'ITBI SOLICITADO'
+  itbi_solicitado_novo        = conta contratos com data_solicitacao_itbi == HOJE (campo criado
+                                 em 28/07/2026 — antes o front-end tinha a linha "ITBI Solicitado"
+                                 com novo:null fixo, e o próprio compute_briefing_card nunca
+                                 calculava esse valor; achado pelo Luiz reportando "teve itbi
+                                 solicitado hoje" e a coluna Novos aparecendo "-")
   itbi_solicitado_atrasados   = conta contratos com etapa=='ITBI' E situacao_itbi=='ATRASADO'
   cartorio_protocolado_total  = conta contratos com etapa=='CARTÓRIO'
   cartorio_protocolado_atrasados = conta contratos com etapa=='CARTÓRIO' E situacao_cartorio=='ATRASADO'
   cartorio_protocolado_novo   = conta contratos com data_entrada_cartorio == HOJE
   cartorio_registrado_novo    = extraInfo.reg_ulysses + extraInfo.reg_eunapio (vem pronto do arquivo-fonte)
-  entregue_agencia_total      = conta contratos com data_entregue_agencia == HOJE
-  entregue_agencia_atrasados  = idem, E situacao_agencia == 'ATRASADO'
+  entregue_agencia_total      = conta contratos com etapa=='AGÊNCIA'  (FOTO do estado atual)
+  entregue_agencia_atrasados  = conta contratos com etapa=='AGÊNCIA' E situacao_agencia=='ATRASADO'
+  entregue_agencia_novo       = conta contratos com data_entregue_agencia == HOJE
   credito_liberado            = conta contratos com data_credito == HOJE
 
   *** REGRA IMPORTANTE (corrigida em 24/07/2026, confirmada pelo Luiz) ***
-  Todos os campos "_novo" (e os quase-"_novo" acima, mesmo sem o sufixo:
-  entregue_agencia_total/atrasados, credito_liberado) usam SÓ O DIA de hoje
-  (extraInfo.today), não uma janela de 2 dias. Isso é diferente do
-  `janela_recente` do topo do BRIEFING_DATA (que controla se o CARD inteiro
-  aparece em "recente" vs "anterior" — esse sim é uma janela de 2 dias,
-  "hoje + dia útil anterior"). São dois conceitos diferentes, não confundir.
+  Todos os campos "_novo" (contrato_sienge_novo, assinados_novo,
+  cartorio_protocolado_novo, cartorio_registrado_novo, entregue_agencia_novo,
+  credito_liberado) usam SÓ O DIA de hoje (extraInfo.today), não uma janela
+  de 2 dias. Isso é diferente do `janela_recente` do topo do BRIEFING_DATA
+  (que controla se o CARD inteiro aparece em "recente" vs "anterior" — esse
+  sim é uma janela de 2 dias, "hoje + dia útil anterior"). São dois conceitos
+  diferentes, não confundir.
 
   Os totais "_total" (contrato_sienge_total, itbi_solicitado_total,
-  cartorio_protocolado_total, assinados_triagem_total) são uma FOTO do estado
-  atual, não usam janela nenhuma.
+  cartorio_protocolado_total, assinados_triagem_total, entregue_agencia_total)
+  e os "_atrasados" são uma FOTO do estado atual (baseados em etapa/situacao),
+  não usam janela nenhuma — só entram no cálculo os contratos que ESTÃO
+  atualmente naquela etapa, independente de quando entraram nela.
+
+  *** ARMADILHA (corrigida em 24/07/2026) ***
+  Antes desta correção, entregue_agencia_total era calculado errado como
+  contagem "== HOJE" (igual um campo _novo), e a linha "Entregue na Agência"
+  no front-end tinha novo:null fixo no código (nunca mostrava nada nessa
+  coluna, mesmo quando havia entregas no dia). O Luiz percebeu porque via
+  o TOTAL certo (5) mas o NOVO aparecia vazio quando deveria mostrar 5
+  também (as 5 entregas do total eram todas do dia). Ao corrigir, criamos o
+  campo NOVO de verdade (etapa_agencia dia-a-dia) e o TOTAL passou a ser uma
+  foto de etapa=='AGÊNCIA' (mesmo padrão do Cartório Protocolado).
 
 BUG CONHECIDO (dias_* / tempo_total):
   O export do Sienge calcula esses 5 campos contra uma data padrão/época
@@ -71,11 +92,11 @@ BUG CONHECIDO (dias_* / tempo_total):
 import argparse
 import json
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from bundler_utils import unpack, repack, find_matching, extract_js_object, check_not_truncated
+from bundler_utils import unpack, repack, find_matching, extract_js_object, check_not_truncated, patch_tab_meta, patch_sidebar_footer, patch_briefing_header, now_local_str, BRASILIA_OFFSET
 
 PROD_FILES = [
     "Dashboard Grupo Delta v5.4.html",
@@ -157,11 +178,19 @@ def diff_and_fix(prod_contratos, new_dd):
 
         if old is not None:
             diffs = {f: (old.get(f), r2.get(f)) for f in r2 if old.get(f) != r2.get(f)}
-            if touched and old.get('situacao_cartorio') != r2.get('situacao_cartorio'):
-                r2['situacao_cartorio'] = old['situacao_cartorio']
-                cartorio_reverted += 1
-                diffs.pop('situacao_cartorio', None)
-            # recalcula diffs "reais" (excluindo os 5 campos de dias_* que o bugfix já tratou)
+            # NÃO reverter situacao_cartorio automaticamente só porque o registro
+            # também foi "tocado" pelo bug dos dias_*/tempo_total (corrigido em
+            # 27/07/2026, achado real: FELIPE ALVES DE LIMA e FRANCISCO AGNO
+            # NASCIMENTO DA SILVA, ambos MONTALCCINO — o script estava revertendo
+            # OK->ATRASADO em silêncio, mas era mudança REAL: previsao_cartorio
+            # (23/07) já tinha passado o extraInfo.today (24/07) do próprio
+            # arquivo-fonte, então ATRASADO estava certo. A correlação com o bug
+            # dos dias_* é coincidência (o bug vem de OUTRO campo de data em
+            # branco no mesmo registro, ex: data_entregue_agencia nulo), não
+            # causa — não dá pra assumir que todo situacao_cartorio que mudar
+            # junto com o bug é espúrio. Deixa aparecer como mudança REAL sempre,
+            # pro Luiz confirmar (regra geral do script, não deveria ter exceção
+            # silenciosa aqui).
             real_diffs = {f: v for f, v in diffs.items() if f not in DIAS_FIELDS}
             if real_diffs:
                 real_changes.append((k, real_diffs))
@@ -179,26 +208,39 @@ def diff_and_fix(prod_contratos, new_dd):
     }
 
 
-def compute_briefing_card(contratos, today_str):
+def compute_briefing_card(contratos, today_str, cartorio_registrado_novo=None):
     today = pd(today_str)
 
     def is_today(s):
         return pd(s) == today
 
-    return dict(
+    card = dict(
         contrato_sienge_novo=sum(1 for r in contratos if is_today(r.get('data_contrato_sienge'))),
         contrato_sienge_total=sum(1 for r in contratos if r.get('data_contrato_sienge') and not r.get('data_assinatura')),
         assinados_novo=sum(1 for r in contratos if is_today(r.get('data_assinatura'))),
         assinados_triagem_total=sum(1 for r in contratos if r.get('etapa_itbi') == 'TRIAGEM'),
         itbi_solicitado_total=sum(1 for r in contratos if r.get('etapa_itbi') == 'ITBI SOLICITADO'),
+        itbi_solicitado_novo=sum(1 for r in contratos if is_today(r.get('data_solicitacao_itbi'))),
         itbi_solicitado_atrasados=sum(1 for r in contratos if r.get('etapa') == 'ITBI' and r.get('situacao_itbi') == 'ATRASADO'),
         cartorio_protocolado_novo=sum(1 for r in contratos if is_today(r.get('data_entrada_cartorio'))),
         cartorio_protocolado_total=sum(1 for r in contratos if r.get('etapa') == 'CARTÓRIO'),
         cartorio_protocolado_atrasados=sum(1 for r in contratos if r.get('etapa') == 'CARTÓRIO' and r.get('situacao_cartorio') == 'ATRASADO'),
-        entregue_agencia_total=sum(1 for r in contratos if is_today(r.get('data_entregue_agencia'))),
-        entregue_agencia_atrasados=sum(1 for r in contratos if is_today(r.get('data_entregue_agencia')) and r.get('situacao_agencia') == 'ATRASADO'),
+        entregue_agencia_total=sum(1 for r in contratos if r.get('etapa') == 'AGÊNCIA'),
+        entregue_agencia_atrasados=sum(1 for r in contratos if r.get('etapa') == 'AGÊNCIA' and r.get('situacao_agencia') == 'ATRASADO'),
+        entregue_agencia_novo=sum(1 for r in contratos if is_today(r.get('data_entregue_agencia'))),
         credito_liberado=sum(1 for r in contratos if is_today(r.get('data_credito'))),
     )
+    # cartorio_registrado_novo NÃO vem de dashboardData.contratos (nenhum campo de
+    # registro por unidade) — vem de extraInfo.cartorio (reg_ulysses+reg_eunapio),
+    # que é opcional/pode não existir na fonte. BUG corrigido em 27/07/2026: até
+    # aqui esse campo nunca era escrito de volta no card_obj no --apply (só era
+    # IMPRESSO como aviso no modo consulta), então o card ficava travado no valor
+    # da última vez que alguém setou à mão — no card do Daily Briefing, achado
+    # porque "Cartório Registrado" mostrava 5 (valor de 24/07) depois de aplicar
+    # um arquivo-fonte de 27/07 cujo extraInfo já tinha reg_ulysses=reg_eunapio=0.
+    if cartorio_registrado_novo is not None:
+        card['cartorio_registrado_novo'] = cartorio_registrado_novo
+    return card
 
 
 def main():
@@ -226,8 +268,9 @@ def main():
         for f, (old, new) in diffs.items():
             print(f"    {f}: {old!r} -> {new!r}")
 
+    reg_new = None
     if new_extra:
-        old_extra_txt = None
+        reg_new = new_extra.get('reg_ulysses', 0) + new_extra.get('reg_eunapio', 0)
         idx = t0.find('const extraInfo')
         if idx != -1:
             eq = t0.find('=', idx)
@@ -235,12 +278,11 @@ def main():
             brace_end = find_matching(t0, brace_start, '{', '}')
             old_extra = json.loads(t0[brace_start:brace_end + 1])
             reg_old = old_extra.get('reg_ulysses', 0) + old_extra.get('reg_eunapio', 0)
-            reg_new = new_extra.get('reg_ulysses', 0) + new_extra.get('reg_eunapio', 0)
             print(f"\ncartorio_registrado_novo (extraInfo): {reg_old} -> {reg_new}"
                   + ("  <-- MUDOU, confirme com o Luiz se bate com a realidade" if reg_old != reg_new else ""))
 
-    today_str = (new_extra or {}).get('today') or datetime.now().strftime('%d/%m/%Y')
-    card = compute_briefing_card(fixed_dd['contratos'], today_str)
+    today_str = (new_extra or {}).get('today') or (datetime.now(timezone.utc) + BRASILIA_OFFSET).strftime('%d/%m/%Y')
+    card = compute_briefing_card(fixed_dd['contratos'], today_str, cartorio_registrado_novo=reg_new)
     print(f"\n=== Card 'Contratos — Gestão' do Daily Briefing (recalculado, hoje={today_str}) ===")
     for k, v in card.items():
         print(f"  {k}: {v}")
@@ -262,21 +304,44 @@ def main():
             bend = find_matching(new_t, bstart, '{', '}')
             new_t = new_t[:bstart] + json.dumps(new_extra, ensure_ascii=False) + new_t[bend + 1:]
 
-        # atualiza o card do Daily Briefing (procura pelo id contratos dentro de BRIEFING_DATA)
-        bidx = new_t.find('"id": "contratos"')
-        if bidx != -1:
-            bstart = new_t.rfind('{', 0, bidx)
-            bend = find_matching(new_t, bstart, '{', '}')
-            card_obj = json.loads(new_t[bstart:bend + 1])
-            card_obj.update(card)
-            new_t = new_t[:bstart] + json.dumps(card_obj, ensure_ascii=False) + new_t[bend + 1:]
+        now_str = now_local_str()  # 'Atualizado: DD/MM/AAAA às HH:MM'
+        hoje_str = now_str.split(': ')[1].split(' às ')[0]
+        hora_str = now_str.split(' às ')[1]
+
+        # atualiza o card do Daily Briefing (procura pelo id contratos dentro de BRIEFING_DATA).
+        # IMPORTANTE (histórico): o arquivo ORIGINAL grava JSON compacto (sem espaço
+        # depois dos ':'), então uma busca só pelo formato COM espaço já falhou em
+        # silêncio uma vez (24/07/2026) — corrigido então pra busca sem espaço.
+        # Só que a PRÓPRIA gravação deste bloco (json.dumps sem `separators=`) usa
+        # o padrão do Python, que tem espaço depois de ':' e ',' — ou seja, depois
+        # do primeiro --apply o trecho já fica gravado COM espaço, e a busca sem
+        # espaço quebraria de novo na rodada seguinte (achado em 27/07/2026, antes
+        # de causar problema). Por isso agora a busca é por regex tolerante a
+        # espaço opcional, e a gravação usa separators compactos pra não ficar
+        # oscilando de formato a cada apply. Continua sendo assert (falha alto),
+        # não "if" — nunca deixar isso passar em silêncio de novo.
+        import re as _re
+        bmatch = _re.search(r'"id"\s*:\s*"contratos"', new_t)
+        assert bmatch is not None, "não achei o card 'contratos' dentro de BRIEFING_DATA — não deixe isso passar em silêncio"
+        bidx = bmatch.start()
+        bstart = new_t.rfind('{', 0, bidx)
+        bend = find_matching(new_t, bstart, '{', '}')
+        card_obj = json.loads(new_t[bstart:bend + 1])
+        card_obj.update(card)
+        card_obj['hora'] = hora_str
+        card_obj['data_ref'] = hoje_str
+        new_t = new_t[:bstart] + json.dumps(card_obj, ensure_ascii=False, separators=(',', ':')) + new_t[bend + 1:]
+
+        new_t = patch_tab_meta(new_t, 'contratos', now_str)
+        new_t = patch_sidebar_footer(new_t)
+        new_t = patch_briefing_header(new_t, now_str)
 
         new_c = repack(new_t, c, tp, te)
         Path(fpath).write_text(new_c, encoding='utf-8')
         print(f"  gravado: {fpath} ({len(new_c)} bytes)")
 
-    print("\nLembre de: atualizar TAB_METAS.contratos e o rodapé do sidebar (versão/hora),")
-    print("depois validar com Playwright (8 abas, zero erros) antes de entregar.")
+    print("\nTAB_METAS.contratos atualizado automaticamente.")
+    print("Falta só: validar com validate_dashboard.py (8 abas, zero erros) antes de entregar.")
 
 
 if __name__ == '__main__':
